@@ -1,0 +1,28 @@
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+main {
+  text-align: center;
+}
+
+
+.my-title-class {
+  font-size: 1.5em; /* Customize the title font size */
+  color: #333; /* Change title color */
+}
+
+.my-popup-class {
+  border-radius: 10px; /* Rounded corners for the popup */
+}
+
+.my-confirm-button-class {
+  background-color: #d33; /* Button color for confirm */
+  color: white; /* Text color for confirm button */
+}
+
+.my-cancel-button-class {
+  background-color: #3085d6; /* Button color for cancel */
+  color: white; /* Text color for cancel button */
+}

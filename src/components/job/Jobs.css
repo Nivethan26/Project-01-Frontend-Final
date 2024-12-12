@@ -1,0 +1,31 @@
+.job-card {
+    border: 1px solid #ccc; /* Add a border around the card */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Inner padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: transform 0.3s; /* Smooth hover effect */
+   
+
+}
+
+.job-card:hover {
+    transform: scale(1.05); /* Slightly scale up on hover */
+}
+
+.company-logo {
+    text-align: center; /* Center the company logo */
+    margin-bottom: 15px; /* Space below the logo */
+   /* Fixed width for all cards */
+    height: 200px;
+}
+
+.job-card h4 {
+    text-align: center; /* Center the job title */
+    margin: 10px 0; /* Top and bottom margin */
+}
+
+.apply-button {
+    display: block; /* Make the button a block element for better spacing */
+    width: 100%; /* Full width */
+    text-align: center; /* Center text */
+}

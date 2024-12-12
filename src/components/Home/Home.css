@@ -1,0 +1,119 @@
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  size: 20px;
+  height: 30vh;
+}
+
+.book-now {
+  display: inline-block;
+  margin: 20px 0;
+  padding: 15px 40px;
+  background-color: rgb(171, 166, 166);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  border-radius: 20px;
+  font-size: 22px;
+  transition: transform 0.3s ease;
+  text-decoration: none;
+}
+
+
+
+
+.book-now:hover {
+  background-color: #000;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+main h3 {
+  text-align: center;
+  font-size: 40px;
+}
+
+/* button {
+  display: block;
+  margin: 0 auto;
+} */
+
+.content {
+  display: flex;
+}
+.logos img {
+  width: 100%;
+  padding: 0 20px;
+}
+
+.content .column1 img {
+  padding: 40px;
+  margin: 20px;
+}
+
+.column1 {
+  font-size: 36;
+
+  flex: 50%;
+  padding: 10px;
+}
+
+.column1 p {
+  font-size: 20px;
+  text-align: left;
+}
+
+.column1 h4 {
+  font-size: 30px;
+}
+
+.column1 img {
+  width: 500px;
+  height: auto;
+  transition: transform 0.3s;
+}
+
+.column1:hover img {
+  transform: scale(1.2);
+}
+
+.column {
+  flex: 50%;
+  padding: 10px;
+}
+
+.column img {
+  width: 400px;
+  height: 200px;
+  transition: transform 0.3s;
+}
+
+.content .column img {
+  padding-left: 40px;
+  width: 50%;
+  margin-left: 20px;
+}
+
+.content .column video {
+  padding-left: 40px;
+  margin-left: 30px;
+}
+
+.column:hover img {
+  transform: scale(1.2);
+}
+
+img {
+  max-width: 100%;
+}
+
+.serpart h3 {
+  text-align: center;
+}

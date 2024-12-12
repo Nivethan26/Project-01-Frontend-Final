@@ -1,0 +1,110 @@
+.footer {
+    background-color: #222;
+    color: #8e8e8e;
+  }
+  
+  .footer h5 {
+    color: #fff;
+  }
+  
+  .footer a {
+    color: #8e8e8e;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+  }
+  
+  .footer a:hover {
+    color: #da1727;
+    transform: translateX(5px);
+  }
+  
+  .footer .btn-floating {
+    font-size: 16px;
+    width: 38px;
+    height: 38px;
+    margin: 0 4px;
+  }
+  
+  .footer .quick-links a {
+    color: #8e8e8e;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+  }
+  
+  .footer .quick-links a:hover {
+    color: #da1727;
+    transform: translateX(5px);
+  }
+  
+  @import url("https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap");
+  
+  .wrapper {
+    display: flex;
+    justify-content: space-around;
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    height: 60px;
+    width: 60px;
+    margin: 0 5px;
+    background: #fff;
+    border-radius: 50px; 
+    cursor: pointer;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-out;
+  }
+  
+  .icon {
+    display: inline-block;
+    height: 60px;
+    width: 60px;
+    text-align: center;
+    border-radius: 50%; 
+    box-sizing: border-box; /* newly added */
+    line-height: 60px;
+    transition: all 0.3s ease-out;
+  }
+  .button:nth-child(1):hover .icon {
+    background: #4267b2;
+  }
+  .button:nth-child(2):hover .icon {
+    background: #333;
+  }
+  .button:nth-child(3):hover .icon {
+    background: #e1306c;
+  }
+  .button:nth-child(4):hover .icon {
+    background: #f00707;
+  }
+  
+  .icon i {
+    font-size: 25px;
+    text-align: center;
+    line-height: 60px; 
+    color: #000;
+    transition: all 0.3s ease-out;
+  }
+  .button:hover .icon i {
+    color: #fff;
+  }
+  
+  @media (max-width: 767px) {
+    .footer {
+      justify-content: center;
+  
+      text-align: center;
+    }
+    .footer .wrapper {
+      justify-content: center;
+    }
+    .button {
+      margin-bottom: 10px;
+    }
+    .button:hover {
+      width: 60px;
+    }
+    .button span {
+      display: none;
+    }
+  }

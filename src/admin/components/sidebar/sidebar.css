@@ -1,0 +1,46 @@
+/* sidebar.css */
+.sidebar {
+  width: 250px; /* Fixed width for the sidebar */
+  background-color: rgb(240, 244, 244);
+  position: sticky;
+  top: 50px;
+  height: calc(100vh - 50px); /* Full height minus the top bar height */
+  overflow-y: auto; /* Scroll if content exceeds height */
+}
+
+.sidebarWrapper {
+  padding: 20px;
+  color: #090909;
+}
+
+.sidebarMenu {
+  margin-bottom: 10px;
+}
+
+.sidebarTitle {
+  font-size: 13px;
+  color: rgb(118, 120, 121);
+}
+
+.sidebarList {
+  list-style: none;
+  padding: 5px;
+}
+
+.sidebarListItem {
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.sidebarListItem.active,
+.sidebarListItem:hover {
+  background-color: rgb(227, 207, 213);
+}
+
+.sidebarIcon {
+  margin-right: 5px;
+  font-size: 20px !important;
+}

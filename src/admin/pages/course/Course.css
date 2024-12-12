@@ -1,0 +1,81 @@
+.container {
+  text-align: left;
+}
+
+.course-container {
+  position: relative;
+  overflow: hidden; /* Ensures the image doesn't overflow the container */
+}
+
+.course-image {
+  transition: transform 0.3s ease; /* Smooth transition for the image */
+  height: auto;
+  width: 100%;
+}
+
+.course-image:hover {
+  transform: scale(1.1); /* Scale the image slightly when hovered */
+}
+
+.course-overlay-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+
+  width: 100%;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+
+/* --- CSS for Course form ---*/
+.course-container {
+  position: relative;
+}
+
+.course-image {
+  width: 100%;
+  height: auto;
+}
+
+.course-overlay-text {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.course-fee-card {
+  background-color: #f8f9fa;
+}
+
+.custom-image-large {
+  width: 100%;
+  height: auto;
+}
+
+/* Modal specific styles to ensure it displays correctly */
+.modal.fade.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Centering the modal */
+.custom-modal .modal-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.custom-modal .modal-content {
+  position: relative;
+}
+
+/* Position the close button in the top right corner */
+.custom-modal .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}

@@ -1,0 +1,97 @@
+.career-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.career-image {
+  width: 100%;
+  height: auto;
+  transition: transform 0.5s ease;
+}
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  text-align: center;
+  font-family: "Arial", sans-serif;
+}
+
+.overlay-text h4 {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.overlay-text p {
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+.career-container:hover .career-image {
+  transform: scale(1.1);
+}
+
+.career-container:hover .overlay-text {
+  opacity: 1;
+}
+
+.text-center h4 {
+  font-weight: bold;
+}
+
+.text-center p {
+  font-size: 1.25rem;
+}
+
+.text-center .btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+}
+
+.custom-image {
+  padding: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.custom-image-large {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  border: 2px solid #ddd;
+  padding: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.custom-image-large:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.custom-image-large-height:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.custom-image-large-height {
+  width: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  border: 2px solid #ddd;
+  padding: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 600px; /* Adjust this value as needed */
+  object-fit: cover;
+}

@@ -1,0 +1,126 @@
+
+.leave-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leave-table th, .leave-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.leave-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.leave-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.leave-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.action-buttons-row {
+    text-align: center;
+    padding: 5px;
+}
+
+.action-button {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.approve-button {
+    color: green;
+    
+}
+
+.reject-button {
+    color: red;
+}
+
+.view-details-button {
+    color: blue;
+}
+.approve-button:hover {
+    background-color: white;
+}
+
+.reject-button:hover {
+    background-color: white;
+}
+
+.view-details-button:hover {
+    background-color: white;
+}
+
+
+.status-approved {
+    color: green;
+}
+
+.status-rejected {
+    color: red;
+}
+
+.status-pending {
+    color: blue;
+}
+
+.status-declined {
+    color: orange;
+}
+
+.status-unknown {
+    color: black;
+}
+
+
+.loading-spinner {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.no-data {
+    text-align: center;
+    padding: 8px;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.search-container {
+    position: relative;
+    display: inline-block; 
+    margin: 20px auto; 
+    margin-left: 850px;
+}
+
+.search-input {
+    padding: 10px 40px; 
+    border-radius: 500px; 
+    border: 1px solid #ccc; 
+    width: 350px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    background-color:rgb(248, 242, 242);
+    color: black;
+}
+
+.search-icon {
+    position: absolute;
+    left: 200px; 
+    transform: translateY(-50%); 
+    color: blue;
+}

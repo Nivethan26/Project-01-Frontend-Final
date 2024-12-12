@@ -1,0 +1,71 @@
+/* .home {
+  flex: 4;
+}
+
+.homeWidgets {
+  display: flex;
+  margin: 20px;
+} */
+.station {
+  flex: 4;
+}
+
+.stationWidgets {
+  display: flex;
+  margin: 20px;
+}
+
+/* -- CSS for Station -- */
+/* src/components/StationBooking/StationBooking.css */
+
+/* src/components/StationBooking/StationBooking.css */
+
+.station-booking-container {
+  text-align: center;
+  margin: 50px auto;
+  max-width: 800px;
+}
+
+.station-booking-container h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.station-booking-container p {
+  font-size: 1.2em;
+  margin-bottom: 40px;
+}
+
+.stations {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns */
+  gap: 20px;
+}
+
+.station-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+}
+
+.station-card h2 {
+  margin: 0 0 10px;
+}
+
+.station-card p {
+  margin: 0 0 20px;
+}
+
+.book-button {
+  background-color: rgb(3, 148, 3);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.book-button:hover {
+  background-color: darkgreen;
+}

@@ -1,0 +1,21 @@
+/* Admin.css */
+.container_admin {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 250px; /* Fixed width for the sidebar */
+  background-color: rgb(240, 244, 244);
+  position: sticky;
+  top: 50px;
+  height: calc(100vh - 50px); /* Full height minus the top bar height */
+  overflow-y: auto; /* Scroll if content exceeds height */
+}
+
+.mainContent {
+  flex: 4;
+  margin-left: 0px; /* Ensure main content starts after the sidebar */
+  padding: 20px;
+  overflow-y: auto; 
+  background-color: white;/* Add vertical scroll if content exceeds height */
+}

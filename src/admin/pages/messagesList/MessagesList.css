@@ -1,0 +1,22 @@
+/* MessagesList.css */
+.messagesListContainer {
+  flex: 4;
+  height: 600px;
+  padding: 20px;
+  overflow: auto;
+}
+
+.messagesListEdit {
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px;
+  background-color: #3bb077;
+  color: white;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.messagesListDelete {
+  color: red;
+  cursor: pointer;
+}

@@ -1,0 +1,39 @@
+.employee-details {
+    width: 90%; /* Set the form width to 70% */
+    margin: 20px auto; /* Center the container horizontally */
+}
+
+/* Styling for each row of details */
+.details-row {
+    display: flex;
+    justify-content: space-between; /* Space out the columns */
+    margin-bottom: 20px; /* Space below each row */
+}
+
+/* Styling for each detail column */
+.detail-column {
+    flex: 1; /* Make each column take equal space */
+    padding: 10px; /* Optional padding for aesthetics */
+}
+
+/* Styling for the labels */
+.detail-column label {
+    display: block; /* Make labels block-level */
+    margin-bottom: 5px; /* Space between label and input */
+}
+
+/* Styling for back links */
+.back-links {
+    margin-top: 20px; /* Space above back links */
+}
+
+/* Styling for back buttons */
+.back-button {
+    margin-right: 10px; /* Space between back buttons */
+    text-decoration: none; /* Remove underline */
+    color: hsl(216, 45%, 96%); /* Bootstrap link color */
+}
+
+.back-button:hover {
+    text-decoration: none; /* Underline on hover */
+}

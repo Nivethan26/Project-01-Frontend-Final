@@ -1,0 +1,41 @@
+.add-service-form {
+    width: 100%; /* Full width */
+    max-width: 800px; /* Set maximum width */
+    margin: auto; /* Center the form */
+  }
+  
+  /* .container {
+    margin-top: 50px; /* Space from top */
+  
+  
+  .text-center {
+    margin-bottom: 30px; /* Space below the title */
+  }
+  
+  .btn-primary {
+    margin-top: 20px; /* Space above the button */
+  }
+  /* AddService.css */
+.form-label {
+  font-size: 1.25rem; /* Increase the font size of the label */
+  font-weight: bold;  /* Make the label bold */
+}
+
+.form-control {
+  font-size: 1rem; /* Increase the font size of the input field */
+  padding: 0.75rem;   /* Increase the padding for better spacing */
+  border-radius: 0.5rem; /* Add rounded corners */
+}
+
+/* Optional: Adjust the button style */
+.btn {
+  font-size: 1.25rem; /* Increase the font size of the button */
+  padding: 0.75rem 1.5rem; /* Add padding for a bigger button */
+}
+.custom-container {
+  max-width: 600px; /* Adjust this value as needed */
+  width: 100%;
+  padding: 20px;
+  margin: 0 auto; /* Centers the container */
+}
+
