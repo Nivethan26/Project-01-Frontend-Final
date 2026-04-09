@@ -104,19 +104,21 @@ const fetchAvailableSlots = async () => {
 
     return (
       <div
-        className="day"
-        onClick={() => handleDayClick(day)}
+        className={`day ${isPast ? "past" : ""}`}
+        onClick={!isPast ? () => handleDayClick(day) : undefined}
         key={formattedDate}
       >
-        <div>{day.getDate()}</div>
+        <div className="date-number">{day.getDate()}</div>
         {isPast ? (
-          <div className="status na">N/A</div>
+          <div className="status na">Unavailable</div>
         ) : (
           <div className="status book">
             <button className={available === 0 ? "booked" : "available"}>
               {available === 0 ? "Booked" : "Book"}
             </button>
-            <div className="slots">{available} slots left</div>
+            <div className={`badge ${available === 0 ? "booked-badge" : "available-badge"}`}>
+              {available} slots left
+            </div>
           </div>
         )}
       </div>

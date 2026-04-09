@@ -1,9 +1,45 @@
 .user_container {
   display: flex;
-  margin-top: 10px;
+  background-color: var(--app-bg, #f4f6f8);
+  min-height: calc(100vh - 60px); /* Account for Topbar */
+  margin-top: 60px; /* Space for the fixed Topbar */
+}
+
+/* Global Content Wrapper */
+.user-content {
+  flex: 4;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .link {
   text-decoration: none;
   color: inherit;
+}
+
+/* Dark Mode Global Variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --hover-bg: #334155;
+    --accent-color: #3b82f6;
+  }
+}
+
+:root {
+  --app-bg: #f4f6f8;
+  --card-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --hover-bg: #f1f5f9;
+  --accent-color: #2563eb;
 }

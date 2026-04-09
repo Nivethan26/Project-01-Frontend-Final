@@ -1,38 +1,183 @@
-.timeslot {
+/* src/bookingStation01/components/Timeslot/Timeslot.css */
+.timeslot-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: var(--app-bg, #f4f6f8);
+  min-height: calc(100vh - 60px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.timeslot h2 {
-  margin-bottom: 20px;
+.timeslot-card {
+  background-color: var(--card-bg, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color, #e2e8f0);
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.timeslot-header {
+  text-align: center;
+  position: relative;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.back-button:hover {
+  background-color: var(--hover-bg, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+}
+
+.back-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.timeslot-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.formatted-date {
+  font-size: 16px;
+  color: var(--text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.date-icon {
+  color: var(--accent-color, #db2424);
+  font-size: 18px;
+}
+
+.timeslot-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.timeslot-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #334155);
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .timeslot-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 .timeslot-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
+  padding: 14px 16px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .timeslot-button.available {
-  background-color: green;
+  background-color: green; /* Strict Rule: Keep current color */
   color: white;
+  box-shadow: 0 2px 4px rgba(0, 128, 0, 0.2);
 }
 
 .timeslot-button.available:hover {
   background-color: darkgreen;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 128, 0, 0.3);
+}
+
+.timeslot-button.available:active {
+  transform: scale(0.98);
 }
 
 .timeslot-button.booked {
-  background-color: red;
+  background-color: red; /* Strict Rule: Keep current color */
   color: white;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.timeslot-button.booked:hover {
+  transform: none;
+  box-shadow: none;
+  background-color: red;
+}
+
+.no-slots {
+  text-align: center;
+  color: var(--text-secondary, #64748b);
+  font-size: 16px;
+  padding: 40px;
+  background-color: var(--hover-bg, #f1f5f9);
+  border-radius: 8px;
+  border: 1px dashed var(--border-color, #e2e8f0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timeslot-card {
+    padding: 24px 20px;
+  }
+
+  .back-button {
+    position: relative;
+    transform: none;
+    top: 0;
+    margin-bottom: 20px;
+    justify-content: center;
+    background-color: var(--hover-bg, #f1f5f9);
+  }
+
+  .timeslot-header {
+    border-bottom: none;
+    padding-bottom: 10px;
+  }
+  
+  .timeslot-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .timeslot-buttons {
+    grid-template-columns: 1fr;
+  }
 }

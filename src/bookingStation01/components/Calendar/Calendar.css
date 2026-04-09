@@ -1,89 +1,202 @@
 /* src/components/Calendar/Calendar.css */
 .calendar {
-  width: 80vw;
-  height: 60vh;
+  width: 100%;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px auto;
+  margin: 40px auto;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
-  padding: 10px;
+  padding: 10px 20px;
+  margin-bottom: 30px;
 }
 
 .header button {
   background-color: rgb(19, 93, 127);
   color: white;
-  border-radius: 3px;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header button:active {
+  transform: scale(0.98);
 }
 
 .current-month {
-  font-size: 1.5em;
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #333;
 }
 
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
   width: 100%;
+}
+
+.day-name {
+  text-align: center;
+  font-weight: 600;
+  color: #555;
+  padding-bottom: 10px;
 }
 
 .day {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  justify-content: space-between;
+  padding: 16px 12px;
   border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 120px;
+  cursor: pointer;
+}
+
+.day:not(.empty):not(.past):hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgb(19, 93, 127);
 }
 
 .day.empty {
   background-color: #f9f9f9;
+  border: 1px dashed #ddd;
+  box-shadow: none;
+  cursor: default;
+}
+
+.day.past {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+}
+
+.date-number {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
 }
 
 .status {
-  margin-top: 5px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .status.na {
   color: red;
+  font-weight: 600;
+  font-size: 0.95em;
+  background-color: rgba(255, 0, 0, 0.05);
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .status.book {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
 }
 
 .status.book button {
   background-color: rgb(1, 146, 1);
   color: white;
   border: none;
-  padding: 5px;
-  cursor: pointer;
+  padding: 8px 0;
+  border-radius: 6px;
+  font-weight: 600;
+  width: 100%;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .status.book button:hover {
   background-color: darkgreen;
+  transform: scale(1.05);
 }
-.status.book .slots {
-  margin-top: 5px;
+
+.status.book button:active {
+  transform: scale(0.95);
+}
+
+.status.book button.booked {
+  background-color: red;
+  cursor: default;
+}
+
+.status.book button.booked:hover {
+  transform: none;
+  background-color: red;
+}
+
+.status.book .badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.status.book .badge.available-badge {
+  background-color: rgba(0, 128, 0, 0.1);
   color: green;
 }
 
-.status.book .booked {
-  background-color: red;
-  color: white;
-}
-
-.status.booked .slots {
+.status.book .badge.booked-badge {
+  background-color: rgba(255, 0, 0, 0.1);
   color: red;
 }
 
-/* Other styles */
-.day .slots {
-  font-size: 12px;
-  color: gray;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .days-grid {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .current-month {
+    order: -1;
+  }
+
+  .days-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .day-name {
+    display: none;
+  }
 }
