@@ -1,6 +1,6 @@
 /* Service Page Styles */
 .services-page-container {
-  padding: 80px 20px;
+  padding: 0 20px 80px;
   background-color: #fafafa;
   min-height: 80vh;
   font-family: inherit;
@@ -12,6 +12,7 @@
   font-size: 2.8rem;
   font-weight: 800;
   color: #222;
+  margin-top: 0;
   margin-bottom: 60px;
   position: relative;
   animation: fadeInDown 0.6s ease-out forwards;

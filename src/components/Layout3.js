@@ -4,7 +4,6 @@ const Layout3 = ({ children }) => {
   return (
     <>
       <Navbar />
-      <div style={{ paddingTop: "80px" }}></div>
       {children}
       <Footer />
     </>

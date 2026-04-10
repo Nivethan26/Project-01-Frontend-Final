@@ -19,3 +19,13 @@ html, body, #root {
   perspective: none !important;
   contain: none !important;
 }
+
+
+/* CRITICAL FIX FOR REACT LAYOUT SCROLL BUG */
+html, body, #root {
+  transform: none !important;
+  perspective: none !important;
+  contain: none !important;
+  will-change: auto !important;
+  filter: none !important;
+}

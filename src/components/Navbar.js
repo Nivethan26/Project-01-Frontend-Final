@@ -1,14 +1,33 @@
-import React from 'react';
-import {Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isActive = (path) => {
+    if (path === '/Home' && (location.pathname === '/' || location.pathname.toLowerCase() === '/home')) {
+        return 'active';
+    }
+    return location.pathname.toLowerCase().startsWith(path.toLowerCase()) ? 'active' : '';
+  };
+
   return (
-    <nav className="navbar navbar-expand-lg fixed-top">
+    <nav className={`navbar navbar-expand-lg ${scrolled ? 'navbar-scrolled' : ''}`}>
       <div className="container">
-        <a className="navbar-brand me-auto" href=" #">
+        <Link className="navbar-brand me-auto" to="/Home">
           <img src="/assets/logo.png" alt="AutoCare Lanka Logo" className="navbar-logo"/>
-        </a>
+        </Link>
         <div
           className="offcanvas offcanvas-end"
           tabIndex="-1"
@@ -24,24 +43,24 @@ const Navbar = () => {
           <div className="offcanvas-body">
             <ul className="navbar-nav justify-content-center flex-grow-1 pe-3">
               <li className="nav-item">
-                <a className="nav-link mx-lg-2" href="/Home"><b>Home</b></a>
+                <Link className={`nav-link mx-lg-2 ${isActive('/Home')}`} to="/Home">Home</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link mx-lg-2" href="/About"><b>About Us</b></a>
+                <Link className={`nav-link mx-lg-2 ${isActive('/About')}`} to="/About">About Us</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link mx-lg-2" href="/Services"><b>Services</b></a>
+                <Link className={`nav-link mx-lg-2 ${isActive('/Services')}`} to="/Services">Services</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link mx-lg-2" href="/career"><b>Careers</b></a>
+                <Link className={`nav-link mx-lg-2 ${isActive('/career')}`} to="/career">Careers</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link mx-lg-2" href="/contactus"><b>Contact Us</b></a>
+                <Link className={`nav-link mx-lg-2 ${isActive('/contactus')}`} to="/contactus">Contact Us</Link>
               </li>
             </ul>
           </div>
         </div>
-        <Link to="/LoginRegister" href=" #" className="login-button">Login</Link>
+        <Link to="/LoginRegister" className="login-button">Login</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
           <span className="navbar-toggler-icon"></span>
         </button>

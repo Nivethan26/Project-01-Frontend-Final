@@ -48,13 +48,16 @@ const Footer = () => {
               Rathmalana, Sri Lanka 10390.
             </p>
             <p>
-              <i className="fas fa-envelope mr-3"></i> info@autocarelanka.com
+              <i className="fas fa-envelope mr-3"></i>{" "}
+              <a href="mailto:info@autocarelanka.com">info@autocarelanka.com</a>
             </p>
             <p>
-              <i className="fas fa-phone mr-3"></i> +94 123 456 789
+              <i className="fas fa-phone mr-3"></i>{" "}
+              <a href="tel:+94741915898">+94 741915898</a>
             </p>
             <p>
-              <i className="fas fa-print mr-3"></i> +94 123 456 780
+              <i className="fas fa-print mr-3"></i>{" "}
+              <a href="tel:+94741915898">+94 741915898</a>
             </p>
           </div>
           <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
@@ -100,11 +103,6 @@ const Footer = () => {
             <p className="text-center text-md-left">
               © <span id="currentYear"></span> AutoCare Lanka. All Rights
               Reserved.
-            </p>
-          </div>
-          <div className="col-md-5 col-lg-4">
-            <p className="text-center text-md-right">
-              Designed by CST_GROUP_12
             </p>
           </div>
         </div>
