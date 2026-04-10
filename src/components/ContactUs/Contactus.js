@@ -6,6 +6,8 @@ import "slick-carousel/slick/slick-theme.css";
 import img1 from "../assets/A20.jpg";
 import img2 from "../assets/A21.jpg";
 import img3 from "../assets/A22.jpg";
+import "./Contactus.css";
+import "./Contactus.css";
 
 const ContactForm = () => {
   const initialFormData = {
@@ -167,7 +169,7 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div style={{ marginTop: "20px" }}>
+    <div className="contact-page-wrapper">
       {/* Carousel */}
       <div style={{ maxWidth: "100%", overflow: "hidden" }}>
         <Slider {...settings}>
@@ -184,184 +186,122 @@ const handleSubmit = async (e) => {
       </div>
 
       {showSuccess && (
-        <div
-          style={{
-            marginTop: "20px",
-            color: "green",
-            backgroundColor: "#dff0d8",
-            padding: "15px",
-            borderRadius: "5px",
-          }}
-        >
-          Your message has been sent successfully!
+        <div style={{ maxWidth: "1200px", margin: "20px auto 0", padding: "0 20px" }}>
+          <div style={{ color: "green", backgroundColor: "#dff0d8", padding: "15px", borderRadius: "5px" }}>
+            Your message has been sent successfully!
+          </div>
         </div>
       )}
 
       {/* Contact Form */}
-      <div style={{ marginTop: "50px" }}>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ width: "100%", maxWidth: "1200px" }}>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-              <div
-                style={{
-                  backgroundColor: "#333",
-                  color: "white",
-                  padding: "20px",
-                  width: "100%",
-                  maxWidth: "500px",
-                  marginRight: "30px",
-                  borderRadius: "5px",
-                  marginBottom: "50px",
-                }}
-              >
-                <h1 style={{ marginBottom: "50px" }}>Find Us</h1>
-                <div
-                  style={{
-                    marginBottom: "50px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <i className="fas fa-home" style={{ marginRight: "15px" }}></i>
-                  <span>66, Attidiya Road, Rathmalana, Sri Lanka 10390.</span>
-                </div>
-                <div
-                  style={{
-                    marginBottom: "50px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <i className="fas fa-phone" style={{ marginRight: "15px" }}></i>
-                  <span>+94 123 456 789</span>
-                </div>
-                <div
-                  style={{
-                    marginBottom: "50px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <i className="fas fa-envelope" style={{ marginRight: "15px" }}></i>
-                  <span>info@autocarelanka.com</span>
-                </div>
-                <div
-                  style={{
-                    marginBottom: "50px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <i className="fas fa-print" style={{ marginRight: "15px" }}></i>
-                  <span>+94 123 456 780</span>
-                </div>
-              </div>
-
-              <div style={{ flex: 1 }}>
-                <h1>Contact Us</h1>
-                <form onSubmit={handleSubmit}>
-                  <div style={{ marginBottom: "15px" }}>
-                    <label htmlFor="firstName" style={{ display: "block" }}>
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      required
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                    {errors.firstName && (
-                      <div style={{ color: "red" }}>{errors.firstName}</div>
-                    )}
-                  </div>
-                  <div style={{ marginBottom: "15px" }}>
-                    <label htmlFor="phone" style={{ display: "block" }}>
-                      Phone No
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      maxLength="10"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                    {errors.phone && (
-                      <div style={{ color: "red" }}>{errors.phone}</div>
-                    )}
-                  </div>
-                  <div style={{ marginBottom: "15px" }}>
-                    <label htmlFor="email" style={{ display: "block" }}>
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                    {errors.email && (
-                      <div style={{ color: "red" }}>{errors.email}</div>
-                    )}
-                  </div>
-                  <div style={{ marginBottom: "15px" }}>
-                    <label htmlFor="message" style={{ display: "block" }}>
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    style={{
-                      backgroundColor: "#6c757d",
-                      color: "white",
-                      padding: "10px 20px",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                      marginBottom: "50px",
-                    }}
-                  >
-                    Submit
-                  </button>
-                </form>
-              </div>
+      <div className="contact-container">
+        <div className="contact-info-card">
+          <h1>Find Us</h1>
+          <div className="contact-info-item">
+            <div className="contact-icon-wrapper">
+              <i className="fas fa-home"></i>
             </div>
+            <span>66, Attidiya Road, Rathmalana, Sri Lanka 10390.</span>
           </div>
+          <div className="contact-info-item">
+            <div className="contact-icon-wrapper">
+              <i className="fas fa-phone"></i>
+            </div>
+            <span>+94 741915898</span>
+          </div>
+          <div className="contact-info-item">
+            <div className="contact-icon-wrapper">
+              <i className="fas fa-envelope"></i>
+            </div>
+            <span>info@autocarelanka.com</span>
+          </div>
+          <div className="contact-info-item">
+            <div className="contact-icon-wrapper">
+              <i className="fas fa-print"></i>
+            </div>
+            <span>+94 123 456 780</span>
+          </div>
+        </div>
+
+        <div className="contact-form-section">
+          <h1>Contact Us</h1>
+          <form onSubmit={handleSubmit}>
+            <div className="contact-input-group">
+              <label htmlFor="firstName">Full Name</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className="contact-input"
+              />
+              {errors.firstName && <div className="contact-error-text">{errors.firstName}</div>}
+            </div>
+            
+            <div className="contact-input-group">
+              <label htmlFor="phone">Phone No</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                maxLength="10"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="contact-input"
+              />
+              {errors.phone && <div className="contact-error-text">{errors.phone}</div>}
+            </div>
+
+            <div className="contact-input-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="contact-input"
+              />
+              {errors.email && <div className="contact-error-text">{errors.email}</div>}
+            </div>
+
+            <div className="contact-input-group">
+              <label htmlFor="message">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                className="contact-input contact-input-textarea"
+              />
+            </div>
+            
+            <button type="submit" className="contact-btn-submit">
+              Submit
+            </button>
+            <div className="contact-helper-text">
+              We'll get back to you within 24 hours.
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="contact-map-container">
+        <div className="contact-map-wrapper">
+          <iframe
+            title="Google Map"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15846.52906803734!2d79.8732155!3d6.8153406!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae25a5857ca2eb9%3A0x6732389aaebb0338!2sRathmalana%2C%20Dehiwala-Mount%20Lavinia%2C%20Sri%20Lanka!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
       </div>
     </div>
