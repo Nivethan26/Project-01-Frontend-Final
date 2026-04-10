@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import "./TimeslotForm.css";
 import PaymentForm from "../PaymentForm/PaymentForm"; // Import PaymentForm component
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import Swal from "sweetalert2"; // Import SweetAlert2 for popups
+import Swal from "../../../utils/modernAlert"; // Import SweetAlert2 for popups
 
 import PersonIcon from '@mui/icons-material/Person';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';

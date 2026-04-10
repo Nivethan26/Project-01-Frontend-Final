@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import { DeleteOutline, Edit, Add } from "@mui/icons-material"; 
 import { IconButton, Box, Button } from "@mui/material"; // MUI components for buttons
-import Swal from "sweetalert2";
+import Swal from "../../../utils/modernAlert";
 
 export default function ListCourse() {
   const [courses, setCourses] = useState([]);
@@ -79,8 +79,15 @@ export default function ListCourse() {
   
 
   const handleDeleteSelected = async () => {
-    const confirmDelete = window.confirm("Are you sure you want to delete selected courses?");
-    if (confirmDelete) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Confirm Delete",
+      text: "Are you sure you want to delete selected courses?",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (isConfirmed) {
       try {
         await Promise.all(selectedRows.map(id => 
           axios.get(`http://localhost/Backend/api/deleteCourse.php?delete=${id}`)
@@ -88,8 +95,16 @@ export default function ListCourse() {
         // Update courses by filtering out the deleted ones
         setCourses(courses.filter(course => !selectedRows.includes(course.id)));
         setSelectedRows([]); // Clear selection after deletion
+        await Swal.fire({
+          icon: "success",
+          title: "Selected courses deleted.",
+        });
       } catch (error) {
         console.error("Error deleting selected courses:", error);
+        await Swal.fire({
+          icon: "error",
+          title: "Error deleting selected courses.",
+        });
       }
     }
   };

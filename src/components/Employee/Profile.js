@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
+import Swal from "../../utils/modernAlert";
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, Avatar, TextField, Button, CircularProgress } from '@mui/material';

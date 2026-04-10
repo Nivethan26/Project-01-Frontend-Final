@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import Swal from "../../utils/modernAlert";
 import { 
   AccessTime, 
   BarChart, 

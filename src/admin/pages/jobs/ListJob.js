@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import { DeleteOutline, Edit, Add } from "@mui/icons-material";
 import { Button, Typography, CircularProgress, Box } from "@mui/material";
-import Swal from "sweetalert2";
+import Swal from "../../../utils/modernAlert";
 import "./List.css";
 
 export default function ListJobs() {

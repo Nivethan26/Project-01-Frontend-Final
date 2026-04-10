@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { TextField, Button, Typography, Alert } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import Swal from '../../../utils/modernAlert';
 
 // Create a custom theme
 const theme = createTheme({
@@ -51,11 +52,22 @@ const EditLeaveType = () => {
 
         const trimmedLeaveType = leaveType.trim();
         if (trimmedLeaveType === '') {
-            alert("Leave type cannot be empty.");
+            await Swal.fire({
+                icon: 'error',
+                title: 'Leave type cannot be empty.',
+            });
             return;
         }
 
-        if (window.confirm(`Are you sure you want to update the leave type to: ${trimmedLeaveType}?`)) {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Confirm Update',
+            text: `Are you sure you want to update the leave type to: ${trimmedLeaveType}?`,
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (isConfirmed) {
             try {
                 const formData = new FormData();
                 formData.append('leave_type', trimmedLeaveType);
@@ -72,12 +84,24 @@ const EditLeaveType = () => {
                 if (response.data && response.data.success) {
                     setSuccessMessage(response.data.message);
                     setErrorMessage(''); // Clear error message if update was successful
+                    await Swal.fire({
+                        icon: 'success',
+                        title: response.data.message || 'Leave type updated successfully.',
+                    });
                 } else {
                     setErrorMessage("Failed to update leave type. " + (response.data.message || 'Unknown error.'));
+                    await Swal.fire({
+                        icon: 'error',
+                        title: response.data.message || 'Failed to update leave type.',
+                    });
                 }
             } catch (error) {
                 console.error("Error updating the leave type:", error);
                 setErrorMessage("Error updating the leave type. Please try again.");
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error updating the leave type. Please try again.',
+                });
             }
         }
     };

@@ -5,7 +5,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { DeleteOutline, Edit, Add } from "@mui/icons-material"; // Import Add icon
 // Assuming you have a CSS file for styling
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import Swal from "../../../utils/modernAlert";
 
 export default function ListService() {
   const [services, setServices] = useState([]);

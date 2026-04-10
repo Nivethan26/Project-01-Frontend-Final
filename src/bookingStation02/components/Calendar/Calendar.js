@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Swal from 'sweetalert2';
+import Swal from "../../../utils/modernAlert";
 import { useNavigate } from "react-router-dom";
 import "./Calendar.css";
 

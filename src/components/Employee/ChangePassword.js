@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Swal from 'sweetalert2';
+import Swal from "../../utils/modernAlert";
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';

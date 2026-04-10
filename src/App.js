@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route,Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Services from "./components/Services";
 import LayoutEm from "./components/Employee/LayoutEm";
 import LayoutEm1 from "./components/Employee/LayoutEm1";
@@ -34,6 +34,7 @@ import BookingStation04 from "./components/BookingStation04";
 import BookingStation01 from "./components/BookingStation01";
 import BookingStation02 from "./components/BookingStation02";
 import BookingStation03 from "./components/BookingStation03";
+import AppAlertsProvider from "./components/ui/AppAlertsProvider";
 
 
 
@@ -41,6 +42,7 @@ import BookingStation03 from "./components/BookingStation03";
 const App = () => {
   return (
     <div>
+    <AppAlertsProvider>
     <BrowserRouter>
       <Routes>
         <Route
@@ -163,6 +165,7 @@ const App = () => {
       </Routes>
      
     </BrowserRouter>
+    </AppAlertsProvider>
 
    
         

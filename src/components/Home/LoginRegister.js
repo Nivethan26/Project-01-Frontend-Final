@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "../../utils/modernAlert";
 import axios from "axios";
 import "./LoginRegister.css";
 

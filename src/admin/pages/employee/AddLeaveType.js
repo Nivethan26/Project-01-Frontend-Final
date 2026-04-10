@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Swal from "sweetalert2";
+import Swal from "../../../utils/modernAlert";
 
 // Create a custom theme
 const theme = createTheme({

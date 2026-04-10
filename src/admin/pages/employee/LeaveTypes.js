@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
-import Swal from "sweetalert2";
+import Swal from "../../../utils/modernAlert";
 
 
 const LeaveTypes = () => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, CircularProgress, ThemeProvider, createTheme } from '@mui/material';
+import Swal from '../../../utils/modernAlert';
 
 // Create a custom theme
 const theme = createTheme({
@@ -54,14 +55,23 @@ const CreateEmployeeForm = () => {
             const result = await response.json();
 
             if (response.ok) {
-                alert('Successfully created the employee.');
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Employee created successfully.',
+                });
                 navigate('/admin/adminEm/employ');
             } else {
-                alert(result.message || 'An error occurred.');
+                await Swal.fire({
+                    icon: 'error',
+                    title: result.message || 'An error occurred.',
+                });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Successfully created the employee.');
+            await Swal.fire({
+                icon: 'error',
+                title: 'Failed to create employee. Please try again.',
+            });
         } finally {
             setLoading(false);
         }

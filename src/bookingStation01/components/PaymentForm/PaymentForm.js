@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "../../../utils/modernAlert"; // Import SweetAlert2
 import "font-awesome/css/font-awesome.min.css";
 import "./PaymentForm.css";
 
@@ -118,7 +118,10 @@ const PaymentForm = ({ closePayment }) => {
         // Check if the role exists
         if (!userRole) {
           console.error("User role not found in sessionStorage");
-          alert("User role is not defined in session storage.");
+          Swal.fire({
+            icon: "error",
+            title: "User role is not defined in session storage.",
+          });
           return; // Prevent further execution if role is not found
         }
 

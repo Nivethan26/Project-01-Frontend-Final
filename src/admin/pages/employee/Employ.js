@@ -5,6 +5,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Button, Typography, Paper } from '@mui/material'; // Import MUI components
 import AddIcon from '@mui/icons-material/Add'; // Import Add icon
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Import Back arrow icon
+import Swal from '../../../utils/modernAlert';
 import './Employ.css'; // Ensure the correct path
 
 const Employ = () => {
@@ -19,7 +20,10 @@ const Employ = () => {
                 setEmployees(response.data);
             } catch (error) {
                 console.error("Error fetching employees:", error.response || error.message);
-                alert("There was an error fetching the employee data.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'There was an error fetching the employee data.',
+                });
             }
         };
 

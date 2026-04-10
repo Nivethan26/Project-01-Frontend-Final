@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Swal from 'sweetalert2';
+import Swal from "../../../utils/modernAlert";
 import "./topbar.css";
 import { NotificationsNone, Language, Settings } from '@mui/icons-material';
 

@@ -1,7 +1,7 @@
 import './Ser.css';
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import Swal from "../utils/modernAlert";
 import axios from 'axios';
 
 export default function Courses() {

@@ -1,0 +1,116 @@
+.app-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.62);
+  display: grid;
+  place-items: center;
+  z-index: 10000;
+  animation: overlayIn 0.2s ease;
+}
+
+.app-confirm-overlay.closing {
+  animation: overlayOut 0.2s ease forwards;
+}
+
+.app-confirm-modal {
+  width: min(460px, calc(100% - 32px));
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+  transform: translateY(0) scale(1);
+  animation: modalIn 0.24s ease;
+}
+
+.app-confirm-modal.closing {
+  animation: modalOut 0.2s ease forwards;
+}
+
+.app-confirm-modal h3 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.app-confirm-modal p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.app-confirm-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.app-confirm-actions button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.app-confirm-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.app-confirm-cancel:hover {
+  background: #e5e7eb;
+}
+
+.app-confirm-ok {
+  background: #da1727;
+  color: #ffffff;
+}
+
+.app-confirm-ok:hover {
+  background: #b90f1e;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(185, 15, 30, 0.35);
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
