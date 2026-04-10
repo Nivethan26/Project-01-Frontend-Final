@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-
+import {
+  WorkOutline,
+  AttachMoney,
+  Event,
+  BusinessCenter,
+  CloudUpload
+} from '@mui/icons-material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './JobDetailsUI.css';
 
 export default function JobDetails() {
   const { id } = useParams();
@@ -17,6 +26,8 @@ export default function JobDetails() {
     cv: null,
   });
   const [formMessage, setFormMessage] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -35,47 +46,77 @@ export default function JobDetails() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
+    
+    if (name === 'phone') {
+      newValue = value.replace(/\D/g, '').slice(0, 9);
+    }
+
     setFormData((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: newValue,
     }));
+
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleFileChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      cv: e.target.files[0],
-    }));
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        setFormData((prevState) => ({
+          ...prevState,
+          cv: file,
+        }));
+        setFormErrors((prev) => ({ ...prev, cv: '' }));
+      } else {
+        setFormData((prevState) => ({
+          ...prevState,
+          cv: null,
+        }));
+        setFormErrors((prev) => ({ ...prev, cv: 'Only PDF files are allowed.' }));
+        e.target.value = null;
+      }
+    }
   };
 
-  const isPhoneValid = (phone) => {
-    // Check if phone is exactly 10 digits
-    return /^\d{10}$/.test(phone);
-  };
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name || formData.name.trim().length < 3) {
+      errors.name = "Name must be at least 3 characters long.";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email.trim())) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!formData.phone || formData.phone.length !== 9) {
+      errors.phone = "Phone number must be exactly 9 digits.";
+    }
+    if (!formData.cv) {
+      errors.cv = "Please upload your CV (PDF format only).";
+    }
 
-  const isEmailValid = (email) => {
-    // Basic email format validation
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleApply = async (e) => {
     e.preventDefault();
-    const { name, phone, email, cv } = formData;
+    setFormMessage('');
 
-    // Validate phone number and email
-    if (!isPhoneValid(phone)) {
-      setFormMessage('Phone number must be exactly 10 digits.');
-      return;
-    }
-    if (!isEmailValid(email)) {
-      setFormMessage('Please enter a valid email address.');
+    if (!validateForm()) {
       return;
     }
 
+    setIsSubmitting(true);
+
+    const { name, phone, email, cv, jobId } = formData;
     const applicationData = new FormData();
-    applicationData.append('jobId', formData.jobId);
+    applicationData.append('jobId', jobId);
     applicationData.append('name', name);
-    applicationData.append('phone', phone);
+    applicationData.append('phone', `+94${phone}`);
     applicationData.append('email', email);
     applicationData.append('cv', cv);
 
@@ -90,19 +131,18 @@ export default function JobDetails() {
         }
       );
 
-      // Assuming the server returns an object with a success property.
-      if (response.data.success) {
-        setFormMessage('Your application was submitted successfully!');
-        // Hide the modal after a short delay if the application was successful.
-        setTimeout(() => {
-          setShowModal(false);
-          setFormMessage(''); // Clear the message after hiding the modal
-        }, 3000); // Increase delay to ensure the message is visible
+      if (response.data.success || response.data.status == 1) {
+        toast.success('Application submitted successfully!');
+        setShowModal(false);
+        setFormMessage('');
+        setFormData({ ...formData, name: '', phone: '', email: '', cv: null }); // clear format
       } else {
-        setFormMessage(response.data.message || 'Something went wrong, please try again.');
+        toast.error(response.data.message || 'Something went wrong, please try again.');
       }
     } catch (error) {
-      setFormMessage('Failed to submit the application. Please try again.');
+      toast.error('Failed to submit the application. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -127,121 +167,192 @@ export default function JobDetails() {
   const requirementsList = formatAsList(job.requirements);
 
   return (
-    <div className="container">
-     <center><h2 className="title " >{job.jobTitle}</h2></center> 
+    <div className="container job-details-container">
+      <ToastContainer />
+      <div className="job-details-grid">
+        
+        {/* Left Column: Main Job Content */}
+        <div className="job-main-content">
+          <div className="job-image-wrapper">
+            <img
+              src={`http://localhost/Backend/images/${job.jobId}/${job.image1}`}
+              alt={job.jobTitle}
+              className="job-main-image"
+            />
+          </div>
 
-      <div className="row align-items-center">
-        <div className="col-md-12">
-          <img
-            src={`http://localhost/Backend/images/${job.jobId}/${job.image1}`}
-            alt={job.jobTitle}
-            className="img-fluid job-image"
-          />
-          <p className="job-description mt-5">{job.content1}</p>
-          <p className="job-description">{job.content2}</p><br></br>
-          
-          <p><b>Experience:</b> {job.experience}</p>
-          <p><b>Salary:</b> {job.salary}</p>
-          <p><b>Closing Date:</b> {new Date(job.closingDate).toLocaleDateString()}</p>
-          <p><b>Job Type:</b> {job.jobType}</p>
+          <div className="job-section-card">
+            <h3 className="job-section-title">Job Description</h3>
+            <p className="job-body-text">{job.content1}</p>
+            <p className="job-body-text">{job.content2}</p>
+          </div>
 
+          <div className="job-section-card">
+            <h3 className="job-section-title">Key Responsibilities</h3>
+            <ul className="job-list">{responsibilitiesList}</ul>
+          </div>
 
-         <br></br>
-          <h3>Key Responsibilities:</h3>
-          <ul>{responsibilitiesList}</ul>
+          <div className="job-section-card">
+            <h3 className="job-section-title">Requirements</h3>
+            <ul className="job-list">{requirementsList}</ul>
+          </div>
 
-          <h3>Requirements:</h3>
-          <ul>{requirementsList}</ul>
-          <div>
-            <div className="col-md-3 mt-3">
-              <h3>Benefits:</h3>
-              <ul>{benefitsList}</ul>
+          <div className="job-section-card">
+            <h3 className="job-section-title">Benefits</h3>
+            <ul className="job-list">{benefitsList}</ul>
+          </div>
+
+          <div className="job-section-card">
+            <h3 className="job-section-title">How to Apply</h3>
+            <p className="job-body-text">
+              Interested candidates are encouraged to submit their resume and cover letter by applying online at our website.
+            </p>
+            <div className="mt-4 text-center">
+              <b className="job-body-text"><i>Join Autocare Lanka and take on a leadership role where your skills and experience will make a difference!</i></b>
             </div>
-            
           </div>
         </div>
-        <div>
-          <h4>How to Apply </h4>
-          <p>Interested candidates are encouraged to submit their resume and cover letter by applying online at our website. </p>
-          <div >
-            <center><b><i>Join Autocare Lanka and take on a leadership role where your skills and experience will make a difference!</i></b></center>
-          </div >
+
+        {/* Right Column: Sticky Summary Card */}
+        <div className="job-sidebar-column">
+          <div className="job-summary-card">
+            <h2 className="job-summary-title">{job.jobTitle}</h2>
+            <div className="job-summary-divider"></div>
+            
+            <div className="job-summary-detail">
+              <div className="job-summary-icon-wrapper">
+                <WorkOutline className="job-summary-icon" />
+              </div>
+              <div className="job-summary-text">
+                <span className="job-summary-label">Experience</span>
+                <span className="job-summary-value">{job.experience} Years</span>
+              </div>
+            </div>
+
+            <div className="job-summary-detail">
+              <div className="job-summary-icon-wrapper">
+                <BusinessCenter className="job-summary-icon" />
+              </div>
+              <div className="job-summary-text">
+                <span className="job-summary-label">Job Type</span>
+                <span className="job-summary-value">{job.jobType}</span>
+              </div>
+            </div>
+
+            <div className="job-summary-detail">
+              <div className="job-summary-icon-wrapper">
+                <AttachMoney className="job-summary-icon" />
+              </div>
+              <div className="job-summary-text">
+                <span className="job-summary-label">Salary</span>
+                <span className="job-summary-value">{job.salary}</span>
+              </div>
+            </div>
+
+            <div className="job-summary-detail">
+              <div className="job-summary-icon-wrapper">
+                <Event className="job-summary-icon" />
+              </div>
+              <div className="job-summary-text">
+                <span className="job-summary-label">Closing Date</span>
+                <span className="job-summary-value">{new Date(job.closingDate).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            <button className="btn-premium-apply-job" onClick={() => setShowModal(true)}>
+              Apply Now
+            </button>
+          </div>
         </div>
       </div>
-      <div className="col-md-3 mt-3 d-flex justify-content-center">
-  <button className="btn btn-danger" onClick={() => setShowModal(true)}>
-    Apply Now
-  </button>
-</div>
 
-
-
-
+      {/* Existing Modal logic below */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="ab">
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <span className="close" onClick={() => setShowModal(false)}>&times;</span>
-              <h3>Apply for {job.jobTitle}</h3>
-              <form onSubmit={handleApply}>
-                <div className="form-group">
-                  <label>Job ID:</label>
-                  <input
-                    type="text"
-                    name="jobId"
-                    value={job.jobId}
-                    readOnly
-                    className="form-control"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Name:</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email:</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Phone:</label>
+        <div className="job-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="job-modal-content-modern" onClick={(e) => e.stopPropagation()}>
+            <button className="job-modal-close" onClick={() => setShowModal(false)}>&times;</button>
+            <h3 className="job-modal-title">Apply for {job.jobTitle}</h3>
+
+            <form onSubmit={handleApply} noValidate>
+              <div className="job-form-group">
+                <label>Job ID</label>
+                <input
+                  type="text"
+                  name="jobId"
+                  value={job.jobId}
+                  readOnly
+                  className="job-input-modern job-read-only"
+                />
+              </div>
+
+              <div className="job-form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="job-input-modern"
+                  placeholder="Enter your full name"
+                />
+                {formErrors.name && <span className="job-error-text">{formErrors.name}</span>}
+              </div>
+
+              <div className="job-form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="job-input-modern"
+                  placeholder="name@example.com"
+                />
+                {formErrors.email && <span className="job-error-text">{formErrors.email}</span>}
+              </div>
+
+              <div className="job-form-group">
+                <label>Phone Number</label>
+                <div className="job-phone-wrapper">
+                  <span className="job-phone-prefix">+94</span>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="form-control"
-                    required
+                    className="job-input-modern job-phone-input"
+                    placeholder="71 234 5678"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Upload CV:</label>
+                {formErrors.phone && <span className="job-error-text">{formErrors.phone}</span>}
+              </div>
+
+              <div className="job-form-group">
+                <label>Upload CV</label>
+                <label className="job-file-upload-zone">
+                  <CloudUpload className="job-upload-icon" />
+                  <span className="job-upload-text">
+                    {formData.cv ? formData.cv.name : "Click to select a PDF file"}
+                  </span>
                   <input
                     type="file"
                     name="cv"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleFileChange}
-                    className="form-control"
-                    required
+                    className="job-file-hidden"
                   />
-                </div>
-                <button type="submit" className="btn btn-primary">Submit</button>
-              </form>
-              {formMessage && <p className="form-message">{formMessage}</p>} {/* Added class for styling */}
-            </div>
+                </label>
+                {formErrors.cv && <span className="job-error-text">{formErrors.cv}</span>}
+              </div>
+
+              <button 
+                type="submit" 
+                className="btn-job-submit" 
+                disabled={isSubmitting || !formData.name || !formData.email || formData.phone.length !== 9 || !formData.cv}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </form>
           </div>
         </div>
       )}

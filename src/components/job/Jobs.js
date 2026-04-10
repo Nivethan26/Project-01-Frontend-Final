@@ -45,27 +45,29 @@ export default function Jobs() {
                     {jobs.map((job) => (
                         <div className="col-md-4" key={job.id}>
                             <div className="job-card">
-                                <div className="company-logo">
+                                <div className="job-image-container">
                                     <img 
                                         src={`http://localhost/Backend/images/${job.jobId}/${job.image1}`} 
                                         alt={job.jobTitle} 
-                                        className="img-fluid"
+                                        className="job-image"
                                     />
                                 </div>
-                                <h4>{job.jobTitle}</h4>
-                                <p>
-                                    <WorkIcon className="me-2" /> {job.experience} years
-                                </p>
-                                <p>
-                                    <BusinessCenterIcon className="me-2" /> {job.jobType} - time job
-                                </p>
-                                <p>
-                                    <AttachMoneyIcon className="me-2" /> {job.salary} 
-                                </p>
-                                <p>
-                                    <EventIcon className="me-2" /> Closing Date: {job.closingDate}
-                                </p>
-                                <div className="jobs">
+                                <h4 className="job-title-modern">{job.jobTitle}</h4>
+                                <div className="job-details-wrapper">
+                                    <p className="job-detail-item">
+                                        <WorkIcon className="job-detail-icon" /> {job.experience} years
+                                    </p>
+                                    <p className="job-detail-item">
+                                        <BusinessCenterIcon className="job-detail-icon" /> {job.jobType} - time job
+                                    </p>
+                                    <p className="job-detail-item">
+                                        <AttachMoneyIcon className="job-detail-icon" /> {job.salary} 
+                                    </p>
+                                    <p className="job-detail-item">
+                                        <EventIcon className="job-detail-icon" /> Closing Date: {job.closingDate}
+                                    </p>
+                                </div>
+                                <div className="jobs-btn-container mt-auto pt-3">
                                     <Link to={`/jobs/${job.id}`} className="apply-button btn btn-danger">Read More</Link>
                                 </div>
                             </div>

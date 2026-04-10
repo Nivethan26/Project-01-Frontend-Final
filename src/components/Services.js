@@ -1,4 +1,3 @@
-// Services.js
 import './Ser.css';
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
@@ -53,30 +52,34 @@ export default function Courses() {
     if (error) return <p>Error fetching courses!</p>;
 
     return (
-        <div>
-            <h1 className='text-center my-5'>Our Services</h1>
-            <div className='container align-items-center'>
-                <div className='row '>
+        <div className="services-page-container">
+            <h1 className="services-page-title">Our Services</h1>
+            <div className="services-grid-wrapper">
+                <div className="services-grid container">
                     {courses.map((course) => (
-                        <div className='col-md-6 mb-5' key={course.id}>
-                            <div >
-                                <div className="thumbnail">
-                                    
-                                    <div className="img-container mt-5">
-                                    <Link to={`/services/${course.id}`} >
-                                        <img 
-                                            src={`http://localhost/Backend/images/${course.serviceId}/${course.image1}`}
-                                            className="img-fluid career-image rounded custom-image align-items-center " 
-                                            alt={course.serviceName} 
-                                        />
-                                         </Link>
-                                        <div className="overlay"></div>
-                                    </div>
-                                </div>
-                                <div className="card-body">
-                                    <h5 className="card-title">{course.serviceName}</h5>
-                                  
-                                </div>
+                        <div className="service-card" key={course.id}>
+                            <div className="service-img-container">
+                                <Link to={`/services/${course.id}`}>
+                                    <img 
+                                        src={`http://localhost/Backend/images/${course.serviceId}/${course.image1}`}
+                                        className="service-img" 
+                                        alt={course.serviceName} 
+                                    />
+                                    <div className="service-img-overlay"></div>
+                                </Link>
+                            </div>
+                            <div className="service-card-content">
+                                <h3 className="service-card-title">{course.serviceName}</h3>
+                                {course.content1 && (
+                                    <p className="service-card-desc">
+                                        {course.content1.length > 80 
+                                            ? `${course.content1.substring(0, 80)}...` 
+                                            : course.content1}
+                                    </p>
+                                )}
+                                <Link to={`/services/${course.id}`} className="service-card-btn">
+                                    View Details
+                                </Link>
                             </div>
                         </div>
                     ))}

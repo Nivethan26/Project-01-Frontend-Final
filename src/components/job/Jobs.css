@@ -1,31 +1,74 @@
-.job-card {
-    border: 1px solid #ccc; /* Add a border around the card */
-    border-radius: 8px; /* Rounded corners */
-    padding: 20px; /* Inner padding */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    transition: transform 0.3s; /* Smooth hover effect */
-   
 
+.job-card {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #fff;
 }
 
 .job-card:hover {
-    transform: scale(1.05); /* Slightly scale up on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.company-logo {
-    text-align: center; /* Center the company logo */
-    margin-bottom: 15px; /* Space below the logo */
-   /* Fixed width for all cards */
+.job-image-container {
+    width: 100%;
     height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 16px;
 }
 
-.job-card h4 {
-    text-align: center; /* Center the job title */
-    margin: 10px 0; /* Top and bottom margin */
+.job-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.job-title-modern {
+    font-size: 19px;
+    font-weight: 600;
+    color: #222;
+    text-align: left;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+}
+
+.job-details-wrapper {
+    margin-bottom: 15px;
+}
+
+.job-detail-item {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.job-detail-icon {
+    font-size: 1.2rem !important;
+    margin-right: 12px;
+    color: #da1727;
+}
+
+.jobs-btn-container {
+    margin-top: auto;
 }
 
 .apply-button {
-    display: block; /* Make the button a block element for better spacing */
-    width: 100%; /* Full width */
-    text-align: center; /* Center text */
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    padding: 10px 0;
+    border-radius: 6px;
 }
+

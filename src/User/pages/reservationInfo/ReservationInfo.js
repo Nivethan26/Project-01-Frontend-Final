@@ -165,8 +165,8 @@ export default function ReservationInfo() {
                 </p>
                 <div className="contact-info">
                     <p><strong>Email:</strong> <a href="mailto:support@autocarelanka.com">support@autocarelanka.com</a></p>
-                    <p><strong>Phone:</strong> +94 123 456 789</p>
-                    <p><strong>Support Hours:</strong> 9:00 AM – 6:00 PM (LKR Time)</p>
+                    <p><strong>Phone:</strong> +94 74 191 5898</p>
+                    <p><strong>Support Hours:</strong> 9:00 AM – 6:00 PM (Sri Lankan Time)</p>
                 </div>
             </section>
         </div>

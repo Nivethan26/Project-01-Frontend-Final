@@ -1,41 +1,500 @@
-.card {
+/* Hero Section */
+.career-hero-section {
+  text-align: center;
+  padding: 100px 20px 80px;
+  background: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url("../assets/A16.jpg") center/cover no-repeat;
+  color: #fff;
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.8s ease-out forwards;
+  margin-top: 20px; /* Separating hero from navbar since navbar is fixed floating overlay */
+}
+
+@media (min-width: 992px) {
+  .career-hero-section {
+    padding-top: 140px; 
+  }
+}
+
+.career-hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+.career-hero-subtitle {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  color: #f1f1f1;
+  line-height: 1.6;
+}
+
+/* Card Enhancement (Unified Modern Card) */
+.career-card-modern {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.card .img-container {
-  height: 400px;
+  background-color: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.card .img-container img {
+.career-card-modern:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(218, 23, 39, 0.15); /* Brand red glow */
+}
+
+/* Image Zoom Area */
+.career-img-wrapper {
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  position: relative;
+}
+
+.career-img-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.card-body {
+.career-card-modern:hover .career-img-wrapper img {
+  transform: scale(1.1);
+}
+
+/* Card Body Layout */
+.career-card-body {
+  padding: 35px 30px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   flex-grow: 1;
-}
-
-.card-title {
-  margin-bottom: 10px;
   text-align: center;
 }
 
-.btn {
-  align-self: center;
-  margin-top: auto;
-}
-.career-image {
-  transition: transform 0.5s ease;
+.career-card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  text-transform: uppercase;
 }
 
-.career-image:hover {
+.career-card-desc {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+/* Beautiful Action Button */
+.btn-career-primary {
+  background-color: #da1727;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 30px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  box-shadow: 0 4px 10px rgba(218, 23, 39, 0.25);
+}
+
+.btn-career-primary:hover {
+  background-color: #190103; /* Match brand hover target */
+  color: #fff;
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 26, 26, 0.25);
+}
+
+/* General Section Headings */
+.career-section-heading {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 50px;
+  position: relative;
+  text-transform: uppercase;
+}
+
+/* Benefits Section */
+.benefits-section {
+  padding: 80px 0;
+  background-color: #fff;
+}
+
+.benefit-card {
+  text-align: center;
+  padding: 40px 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  height: 100%;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(218, 23, 39, 0.08); /* Brand red subtle glow */
+}
+
+.benefit-icon-wrapper {
+  background-color: rgba(218, 23, 39, 0.08);
+  color: #da1727;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  transition: transform 0.3s ease;
+}
+
+.benefit-card:hover .benefit-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.benefit-icon-wrapper svg {
+  font-size: 40px;
+}
+
+.benefit-card h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #222;
+}
+
+.benefit-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Open Positions Area */
+.positions-section {
+  background-color: #f8f9fa;
+  padding: 80px 0;
+  border-radius: 30px;
+  margin: 20px 0 80px;
+}
+
+.position-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, border-left-color 0.3s ease;
+  border-left: 5px solid transparent;
+}
+
+.position-card:hover {
+  transform: translateX(8px);
+  border-left-color: #da1727;
+}
+
+.pos-info h5 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.pos-info p {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pos-info p svg {
+  font-size: 18px;
+  color: #da1727;
+}
+
+.btn-apply-outline {
+  background-color: transparent;
+  color: #da1727;
+  border: 2px solid #da1727;
+  padding: 10px 25px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-apply-outline:hover {
+  background-color: #da1727;
+  color: #fff;
   transform: scale(1.05);
 }
+
+/* Micro-Interaction Timings */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-st-1 { animation: fadeInUp 0.8s ease-out 0.2s forwards; opacity: 0; }
+.anim-st-2 { animation: fadeInUp 0.8s ease-out 0.4s forwards; opacity: 0; }
+.anim-st-3 { animation: fadeInUp 0.8s ease-out 0.6s forwards; opacity: 0; }
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .position-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  .career-hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* --- Life at AutoCare Lanka Enhancements --- */
+.career-life-container {
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+.career-life-heading {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+  color: #1a1a1a;
+  position: relative;
+}
+
+.career-life-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 50px;
+  align-items: start;
+}
+
+.career-life-content-card {
+  background: #ffffff;
+  padding: 30px 35px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.career-life-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.career-life-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.career-life-subheading {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #da1727;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  gap: 8px;
+}
+
+.career-life-icon {
+  font-size: 1.4rem !important;
+  color: #da1727;
+}
+
+.career-life-section p {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 18px;
+  max-width: 90%;
+}
+
+.career-life-section p:last-child {
+  margin-bottom: 0;
+}
+
+.career-life-image-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+  height: 100%;
+}
+
+.career-life-image-wrapper:hover {
+  transform: scale(1.03);
+}
+
+.career-life-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 991px) {
+  .career-life-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .career-life-heading {
+    font-size: 2rem;
+    margin-bottom: 40px;
+  }
+
+  .career-life-image-wrapper {
+    height: auto;
+  }
+}
+
+
+/* --- Our People Page Enhancements --- */
+.career-people-section {
+  background: #f5f7fa;
+  padding: 60px 0;
+}
+
+.career-people-header h3 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  letter-spacing: 1px;
+}
+
+.career-people-content {
+  margin-top: 20px;
+}
+
+@media (min-width: 992px) {
+  .career-people-content {
+    gap: 0; /* Let bootstrap row/col handle the main layout, we'll use padding for gap if needed, or flex gap on row */
+  }
+  .career-people-content > .col-lg-7 {
+    padding-right: 40px; /* spacing between columns */
+  }
+}
+
+.people-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+  border-left: 4px solid #da1727;
+  margin-bottom: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.people-card:last-child {
+  margin-bottom: 0;
+}
+
+.people-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.people-card-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  gap: 12px;
+  position: relative;
+}
+
+.people-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #da1727;
+}
+
+.people-icon {
+  font-size: 1.5rem !important;
+  color: #da1727;
+}
+
+.people-card-header h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.people-card p {
+  color: #444;
+  line-height: 1.8;
+  font-size: 0.95rem;
+  max-width: 90%;
+  margin: 0;
+}
+
+.people-image-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.4s ease;
+  height: 100%;
+}
+
+.people-image-wrapper:hover {
+  transform: scale(1.03);
+}
+
+.people-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+@media (max-width: 991px) {
+  .career-people-content > .col-lg-5 {
+    margin-top: 30px;
+  }
+}
+

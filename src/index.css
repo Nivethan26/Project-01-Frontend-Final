@@ -1,4 +1,4 @@
-/* body {
+﻿/* body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -10,4 +10,12 @@
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Fix global transform contexts that break fixed elements */
+html, body, #root {
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+  contain: none !important;
 }
