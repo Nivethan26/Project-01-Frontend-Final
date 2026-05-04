@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
@@ -12,6 +13,43 @@ import img4 from "../assets/A17.jpg";
 import "./Career2.css";
 
 export default function Career1() {
+  const [jobs, setJobs] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchJobs = async () => {
+      try {
+        const res = await axios.get("/Backend/api/jobs.php");
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.jobs)
+            ? res.data.jobs
+            : [];
+
+        if (isMounted) {
+          setJobs(list);
+        }
+      } catch (_) {
+        if (isMounted) {
+          setJobs([]);
+        }
+      }
+    };
+
+    fetchJobs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const visibleJobs = useMemo(() => {
+    if (!Array.isArray(jobs)) return [];
+    return showAll ? jobs : jobs.slice(0, 3);
+  }, [jobs, showAll]);
+
   return (
     <div style={{ backgroundColor: "#fafafa", minHeight: "100vh" }}>
       {/* 1. Hero Section */}
@@ -151,32 +189,48 @@ export default function Career1() {
           <h2 className="career-section-heading mb-5">Current Openings</h2>
           <div className="row justify-content-center">
             <div className="col-lg-10">
-              {/* Position 1 */}
-              <div className="position-card">
-                <div className="pos-info">
-                  <h5>Senior Automotive Technician</h5>
-                  <p><LocationOnIcon /> Colombo Service Center &middot; Full Time</p>
-                </div>
-                <Link to="/careerjob" className="btn-apply-outline">Apply Now</Link>
-              </div>
-              
-              {/* Position 2 */}
-              <div className="position-card">
-                <div className="pos-info">
-                  <h5>Service Advisor / Manager</h5>
-                  <p><LocationOnIcon /> Kandy Branch &middot; Full Time</p>
-                </div>
-                <Link to="/careerjob" className="btn-apply-outline">Apply Now</Link>
-              </div>
+              {visibleJobs.map((job) => {
+                const title = job?.title || job?.jobTitle || "";
+                const type = job?.type || job?.jobType || "";
+                const location = job?.location || "AutoCare Lanka";
+                const id = job?.id;
 
-              {/* Position 3 */}
-              <div className="position-card">
-                <div className="pos-info">
-                  <h5>Diagnostic Specialist (EV/Hybrid)</h5>
-                  <p><LocationOnIcon /> Colombo Service Center &middot; Full Time</p>
+                return (
+                  <div className="position-card" key={String(id ?? title)}>
+                    <div className="pos-info">
+                      <h5>{title}</h5>
+                      <p>
+                        <LocationOnIcon /> {location}
+                        {type ? (
+                          <>
+                            {" "}
+                            &middot; {type}
+                          </>
+                        ) : null}
+                      </p>
+                    </div>
+                    <Link
+                      to={id ? `/jobs/${id}` : "/careerjob"}
+                      state={id ? { jobId: id, jobTitle: title } : undefined}
+                      className="btn-apply-outline"
+                    >
+                      Apply Now
+                    </Link>
+                  </div>
+                );
+              })}
+
+              {!showAll && Array.isArray(jobs) && jobs.length > 3 ? (
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    className="btn-apply-outline"
+                    onClick={() => setShowAll(true)}
+                  >
+                    View More
+                  </button>
                 </div>
-                <Link to="/careerjob" className="btn-apply-outline">Apply Now</Link>
-              </div>
+              ) : null}
             </div>
           </div>
         </div>

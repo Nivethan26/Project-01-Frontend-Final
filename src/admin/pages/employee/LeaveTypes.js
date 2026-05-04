@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid from MUI
@@ -54,33 +55,18 @@ const LeaveTypes = () => {
   
         if (response.data && response.data.success) {
           // Show success message
-          Swal.fire({
-            title: 'Deleted!',
-            text: response.data.message,
-            icon: 'success',
-            confirmButtonText: 'OK',
-          });
+          toast.success(response.data.message);
   
           // Remove the deleted leave type from the state
           setLeaveTypes((prevLeaveTypes) => prevLeaveTypes.filter((type) => type.id !== id));
         } else {
           // Show error message if deletion fails
-          Swal.fire({
-            title: 'Error!',
-            text: "Failed to delete leave type. " + (response.data.message || 'Unknown error.'),
-            icon: 'error',
-            confirmButtonText: 'Retry',
-          });
+          toast.error("Failed to delete leave type. ");
         }
       } catch (error) {
         console.error("Error deleting leave type:", error);
         // Show error popup for network issues or server error
-        Swal.fire({
-          title: 'Error!',
-          text: 'Error deleting the leave type. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'Retry',
-        });
+        toast.error('Error deleting the leave type. Please try again.');
       }
     }
   };

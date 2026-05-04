@@ -26,7 +26,7 @@ const Home = () => {
             Experience excellence with Sri Lanka's largest and most trusted auto service network.
           </p>
           <div className="hero-actions">
-            <Link to="/LoginRegister" className="cta-button cta-primary">
+            <Link to="/login" className="cta-button cta-primary">
               Book a Service
             </Link>
             <Link to="/Services" className="cta-button cta-secondary">

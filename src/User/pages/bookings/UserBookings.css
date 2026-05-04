@@ -1,0 +1,523 @@
+/* ============================================================
+   User Bookings Page — Premium SaaS UI
+   AutoCare Lanka
+   ============================================================ */
+
+.user-bookings-page {
+  padding: 30px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.ub-header {
+  margin-bottom: 28px;
+}
+
+.ub-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px 0;
+}
+
+.ub-header p {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Stats Grid ────────────────────────────────────────────── */
+.ub-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+  .ub-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.ub-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ub-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.ub-stat-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ub-stat-info h3 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px 0;
+  line-height: 1;
+}
+
+.ub-stat-info p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Filter Tabs ───────────────────────────────────────────── */
+.ub-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  padding: 4px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.ub-tab-btn {
+  padding: 10px 22px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ub-tab-btn:hover {
+  color: #1a2f5e;
+  background: rgba(26, 47, 94, 0.05);
+}
+
+.ub-tab-btn.active {
+  background: #1a2f5e;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(26, 47, 94, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ── Booking List ──────────────────────────────────────────── */
+.ub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Booking Card ──────────────────────────────────────────── */
+.ub-booking-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 24px;
+  transition: all 200ms ease;
+}
+
+.ub-booking-card:hover {
+  border-color: #635BFF;
+  box-shadow: 0 4px 14px rgba(99, 91, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Card top row */
+.ub-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.ub-vehicle-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ub-vehicle-model {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.ub-vehicle-number {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.ub-card-right-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ub-amount {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a2f5e;
+}
+
+/* Status badge */
+.ub-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Detail rows */
+.ub-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ub-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Card bottom */
+.ub-card-bottom {
+  border-top: 1px solid #f3f4f6;
+  padding-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ub-bottom-status {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ub-cancel-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #dc2626;
+  background: white;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.ub-cancel-btn:hover {
+  background: #fef2f2;
+}
+
+/* ── Empty State ───────────────────────────────────────────── */
+.ub-empty-state {
+  text-align: center;
+  padding: 56px 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px dashed #d1d5db;
+}
+
+.ub-empty-state h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.ub-empty-state p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+.ub-book-btn {
+  background: #1a2f5e;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.ub-book-btn:hover {
+  background: #152548;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 47, 94, 0.25);
+}
+
+/* ── Skeleton Loading ──────────────────────────────────────── */
+.ub-skeleton-card {
+  height: 170px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: ub-shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes ub-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Cancel Modal ──────────────────────────────────────────── */
+.ub-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: ub-fadeIn 200ms ease;
+}
+
+@keyframes ub-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ub-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  animation: ub-slideUp 300ms ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes ub-slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.ub-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.ub-modal-close:hover {
+  color: #374151;
+}
+
+.ub-modal-icon {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.ub-modal-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.ub-modal-desc {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+/* Modal summary box */
+.ub-modal-summary {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.ub-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.ub-summary-row + .ub-summary-row {
+  border-top: 1px solid #f3f4f6;
+}
+
+.ub-summary-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.ub-summary-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+/* Modal buttons */
+.ub-modal-confirm-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #dc2626;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ub-modal-confirm-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.ub-modal-confirm-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ub-modal-keep-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: transparent;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.ub-modal-keep-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.ub-modal-keep-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.ub-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: ub-spin 0.6s linear infinite;
+}
+
+@keyframes ub-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .user-bookings-page {
+    padding: 20px 16px;
+  }
+
+  .ub-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ub-card-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ub-card-right-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .ub-vehicle-info {
+    flex-wrap: wrap;
+  }
+
+  .ub-modal {
+    margin: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ub-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .ub-stat-card {
+    padding: 14px;
+  }
+
+  .ub-stat-info h3 {
+    font-size: 22px;
+  }
+
+  .ub-detail-row {
+    flex-wrap: wrap;
+  }
+
+  .ub-tabs {
+    gap: 6px;
+  }
+
+  .ub-tab-btn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+}

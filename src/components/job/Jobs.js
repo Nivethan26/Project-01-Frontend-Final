@@ -17,9 +17,12 @@ export default function Jobs() {
     }, []);
 
     const getJobs = async () => {
+        console.log('[Jobs] useEffect triggered, fetching jobs...');
         try {
+            console.log('[Jobs] API call start: /Backend/api/indexjob.php');
             const response = await axios.get('http://localhost/Backend/api/indexjob.php'); // Adjust API endpoint
             console.log('API Response:', response.data);
+            console.log('[Jobs] API call success');
             if (Array.isArray(response.data)) {
                 setJobs(response.data);
             } else {
@@ -28,6 +31,7 @@ export default function Jobs() {
             }
         } catch (error) {
             console.error('Error fetching jobs:', error);
+            console.error('[Jobs] API call failed', error?.response?.status, error?.message);
             setError('Error fetching jobs: ' + error.message); // Set a more informative error message
         } finally {
             setLoading(false);

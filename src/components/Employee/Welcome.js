@@ -1,8 +1,12 @@
+import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
 import Swal from "../../utils/modernAlert";
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const Welcome = () => {
+    const navigate = useNavigate();
+    const { id: routeId } = useParams();
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
     const [leaveFormVisible, setLeaveFormVisible] = useState(false); // State to control leave form visibility
@@ -20,47 +24,60 @@ const Welcome = () => {
     });
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId'); // Retrieve user ID from localStorage
+        const normalizeId = (value) => {
+            if (value === null || value === undefined) return null;
+            const parsed = String(value).trim();
+            if (!parsed || parsed === 'undefined' || parsed === 'null') {
+                return null;
+            }
+            return parsed;
+        };
+
+        const userId =
+            normalizeId(routeId) ||
+            normalizeId(sessionStorage.getItem('user-id')) ||
+            normalizeId(localStorage.getItem('userId'));
 
         if (!userId) {
-            Swal.fire({
-                title: 'Authentication Error',
-                text: 'User not logged in. Please log in to continue.',
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            localStorage.removeItem('userId');
+            sessionStorage.removeItem('user-id');
+            toast.error('User not logged in. Please log in to continue.');
+            navigate('/login');
             return;
         }
 
+        localStorage.setItem('userId', userId);
+        sessionStorage.setItem('user-id', userId);
+
+        if (!normalizeId(routeId) && userId) {
+            navigate(`/welcome/${userId}`, { replace: true });
+        }
+
         // Fetch user details from the API using the userId
-        axios.get(`http://localhost/Backend/api/getUserDetails.php?id=${userId}`)
+        axios.get(`http://localhost/Backend/api/getUserDetails.php?id=${userId}`, { withCredentials: true })
             .then(response => {
                 const data = response.data;
                 if (data.success) {
                     setUser(data.data);
                     setLeaveForm(prev => ({ ...prev, employeeId: data.data.id })); // Set employee ID in leave form
                 } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: data.message || 'An unknown error occurred',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                    });
+                    toast.error(data.message || 'An unknown error occurred');
                 }
             })
             .catch(err => {
-                Swal.fire({
-                    title: 'Error',
-                    text: err.message || 'Failed to fetch user details. Please try again later.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                });
+                if (err?.response?.status === 401) {
+                    localStorage.removeItem('userId');
+                    sessionStorage.removeItem('user-id');
+                    navigate('/login');
+                    return;
+                }
+                toast.error(err.message || 'Failed to fetch user details. Please try again later.');
             });
 
         // Fetch leave types
         const fetchLeaveTypes = async () => {
             try {
-                const response = await axios.get('http://localhost/Backend/api/employee.php');
+                const response = await axios.get('http://localhost/Backend/api/employee.php', { withCredentials: true });
                 setLeaveTypes(response.data.leaveTypes);
             } catch (error) {
                 console.error('Error fetching leave types:', error);
@@ -68,7 +85,7 @@ const Welcome = () => {
         };
 
         fetchLeaveTypes();
-    }, []);
+    }, [navigate, routeId]);
 
     const handleApplyLeave = () => {
         // Toggle the visibility of the leave form
@@ -89,7 +106,7 @@ const Welcome = () => {
             text: "Do you want to submit the leave application?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-paper-plane"></i> Yes, submit!',
+            confirmButtonText: 'Yes, submit!',
             cancelButtonText: 'Cancel',
             confirmButtonColor: '#28a745', // Green color for confirm button
             cancelButtonColor: '#d33', // Red color for cancel button
@@ -116,32 +133,14 @@ const Welcome = () => {
         console.log(leaveForm); // Check the leave form data before sending
     
         try {
-            const response = await axios.post('http://localhost/Backend/api/submitLeave.php', leaveForm);
+            const response = await axios.post('http://localhost/Backend/api/submitLeave.php', leaveForm, { withCredentials: true });
     
             // Check if the response indicates success
             if (response.data && response.data.message) {
                 console.log('Leave application submitted successfully:', response.data.message);
     
                 // Display success popup with SweetAlert2
-                Swal.fire({
-                    title: 'Success!',
-                    text: response.data.message,
-                    icon: 'success',
-                    confirmButtonText: '<i class="fa fa-thumbs-up"></i> Great!',
-                    confirmButtonColor: '#28a745', // Green color for the button
-                    background: '#f0f9ff', // Soft background color
-                    backdrop: `
-                        rgba(0,0,123,0.4)
-                        url("https://i.gifer.com/ZZ5H.gif") // Background effect with gif
-                        left top
-                        no-repeat
-                    `,
-                    customClass: {
-                        title: 'my-title-class', // Custom title style class
-                        popup: 'my-popup-class', // Custom popup style class
-                        confirmButton: 'my-confirm-button-class', // Custom button style class
-                    }
-                });
+                toast.success(response.data.message);
     
                 // Reset the form fields
                 setLeaveForm({
@@ -160,25 +159,7 @@ const Welcome = () => {
                 const errorMessage = response.data && response.data.error ? response.data.error : 'There was an issue with your submission. Please try again.';
     
                 // Display error popup with SweetAlert2
-                Swal.fire({
-                    title: 'Error!',
-                    text: errorMessage,
-                    icon: 'error',
-                    confirmButtonText: 'Try Again',
-                    confirmButtonColor: '#d33', // Red color for error button
-                    background: '#ffe8e8', // Soft background color for error
-                    backdrop: `
-                        rgba(0,0,123,0.4)
-                        url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                        left top
-                        no-repeat
-                    `,
-                    customClass: {
-                        title: 'my-title-class-error', // Custom title style class for error
-                        popup: 'my-popup-class-error', // Custom popup style class for error
-                        confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                    }
-                });
+                toast.error(errorMessage);
             }
     
         } catch (error) {
@@ -191,25 +172,7 @@ const Welcome = () => {
             }
     
             // Display error popup with SweetAlert2
-            Swal.fire({
-                title: 'Oops!',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#d33', // Red color for error button
-                background: '#ffe8e8', // Soft background color for error
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    title: 'my-title-class-error', // Custom title style class for error
-                    popup: 'my-popup-class-error', // Custom popup style class for error
-                    confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                }
-            });
+            toast.error(errorMessage);
         }
     };
     
@@ -282,7 +245,7 @@ const Welcome = () => {
             `}</style>
 
             <div className="welcome-container">
-                <h1>Welcome, {user.id}!</h1>
+                <h1>Welcome, {user.username || user.name || user.id}!</h1>
                 <button className="apply-leave-button" onClick={handleApplyLeave}>
                     {leaveFormVisible ? 'Hide Leave Form' : 'Apply Leave'}
                 </button>

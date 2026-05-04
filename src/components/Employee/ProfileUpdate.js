@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
 import Swal from "../../utils/modernAlert";
 import axios from 'axios';
@@ -5,7 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Avatar, Grid, TextField, Button, Typography } from '@mui/material';
 
 const ProfileUpdate = () => {
-    const { id } = useParams(); // Get employee ID from URL parameters
+    const { id: paramId } = useParams(); // Get employee ID from URL parameters
+    const id = paramId || localStorage.getItem("userId");
     const navigate = useNavigate(); // For navigating between pages
 
     const [userDetails, setUserDetails] = useState(null); // Store employee data
@@ -23,46 +25,42 @@ const ProfileUpdate = () => {
             setLoading(true); // Start loading when fetching begins
         
             try {
-                const response = await axios.get(`http://localhost/Backend/api/employeeDetails.php?id=${id}`);
+                console.log("Fetching details for user ID:", id);
+                const response = await axios.get(`http://localhost/Backend/api/getUserDetails.php?id=${id}`, { withCredentials: true });
                 const data = response.data;
-        
-                if (response.status === 200 && data && data.id) {
-                    setUserDetails(data);
+                console.log("API Response:", data);
+
+                if (data && data.success) {
+                    const userData = data.data;
+                    setUserDetails(userData);
                     setFormData({
-                        username: data.username || '',
-                        name: data.name || '',
-                        email: data.email || '',
-                        phone: data.phone || '',
-                        address: data.address || '',
+                        username: userData.username || '',
+                        name: userData.name || '',
+                        email: userData.email || '',
+                        phone: userData.phone || '',
+                        address: userData.address || '',
                     });
                 } else {
-                    // Show error popup for employee not found
-                    await Swal.fire({
-                        title: 'Employee Not Found',
-                        text: 'The employee you are trying to fetch was not found.',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                    });
-        
-                    // Navigate back if employee is not found
-                    navigate('/welcome/:id');
+                    // Show error popup for user not found
+                    await ( toast.error('The user you are trying to fetch was not found.'), new Promise(res => setTimeout(res, 2000)) );
+
+                    // Navigate back if user is not found
+                    navigate(`/welcome/${id}`);
                 }
             } catch (error) {
                 // Show error popup for failed fetch
-                await Swal.fire({
-                    title: 'Failed to Load',
-                    text: 'Failed to load employee details. Please try again later.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                });
-        
-                // Navigate to the employee list page
-                navigate('/employ');
+                if (error.response && error.response.status === 401) {
+                    await ( toast.error('Your session has expired. Please login again.'), new Promise(res => setTimeout(res, 2000)) );
+                    navigate('/login');
+                } else {
+                    await ( toast.error('Failed to load details. Please try again later.'), new Promise(res => setTimeout(res, 2000)) );
+                    navigate(`/welcome/${id}`);
+                }
             } finally {
                 setLoading(false); // Stop loading after fetch completes
             }
         };
-        
+
         fetchEmployeeDetails();
         }, [id, navigate]);
          // Ensure 'id' and 'navigate' are passed as dependencies
@@ -76,7 +74,7 @@ const ProfileUpdate = () => {
             text: "Do you want to update the profile?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-save"></i> Yes, update!',
+            confirmButtonText: 'Yes, update!',
             cancelButtonText: 'Cancel',
             confirmButtonColor: '#28a745', // Green color for confirm button
             cancelButtonColor: '#d33', // Red color for cancel button
@@ -103,77 +101,23 @@ const ProfileUpdate = () => {
         const updatedData = formData; // Use formData directly
     
         try {
-            const updateResponse = await axios.post(`http://localhost/Backend/api/updateUser.php?id=${id}`, {
+            const updateResponse = await axios.post(`http://localhost/Backend/api/updateUser.php`, {
                 ...updatedData,
                 id: id,
-            });
-    
+            }, { withCredentials: true });
+
             if (updateResponse.data.success) {
                 setUserDetails(prevDetails => ({ ...prevDetails, ...updatedData })); // Update only changed fields
     
                 // Display success popup with SweetAlert2
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'User details updated successfully',
-                    icon: 'success',
-                    confirmButtonText: '<i class="fa fa-thumbs-up"></i> Great!',
-                    confirmButtonColor: '#28a745', // Green color for the button
-                    background: '#f0f9ff', // Soft background color
-                    backdrop: `
-                        rgba(0,0,123,0.4)
-                        url("https://i.gifer.com/ZZ5H.gif") // Background effect with gif
-                        left top
-                        no-repeat
-                    `,
-                    customClass: {
-                        title: 'my-title-class', // Custom title style class
-                        popup: 'my-popup-class', // Custom popup style class
-                        confirmButton: 'my-confirm-button-class', // Custom button style class
-                    }
-                });
+                toast.success('User details updated successfully');
             } else {
                 // Display error popup with SweetAlert2 for failed update
-                Swal.fire({
-                    title: 'Error!',
-                    text: updateResponse.data.message,
-                    icon: 'error',
-                    confirmButtonText: 'Try Again',
-                    confirmButtonColor: '#d33', // Red color for error button
-                    background: '#ffe8e8', // Soft background color for error
-                    backdrop: `
-                        rgba(0,0,123,0.4)
-                        url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                        left top
-                        no-repeat
-                    `,
-                    customClass: {
-                        title: 'my-title-class-error', // Custom title style class for error
-                        popup: 'my-popup-class-error', // Custom popup style class for error
-                        confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                    }
-                });
+                toast.error(updateResponse.data.message);
             }
         } catch (err) {
             // Display error popup with SweetAlert2 for catch block
-            Swal.fire({
-                title: 'Oops!',
-                text: 'Error updating user details. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#d33', // Red color for error button
-                background: '#ffe8e8', // Soft background color for error
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    title: 'my-title-class-error', // Custom title style class for error
-                    popup: 'my-popup-class-error', // Custom popup style class for error
-                    confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                }
-            });
+            toast.error('Error updating user details. Please try again.');
         }
     };
     

@@ -15,7 +15,7 @@ const Navbar = () => {
         text: "Do you really want to logout?",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: '<i class="fa fa-sign-out-alt"></i> Yes, logout!',
+        confirmButtonText: 'Yes, Logout',
         cancelButtonText: 'Cancel',
         confirmButtonColor: '#d33', // Red color for confirm button
         cancelButtonColor: '#28a745', // Green color for cancel button
@@ -36,12 +36,20 @@ const Navbar = () => {
 
     // If user confirmed logout, perform logout logic
     if (isConfirmed) {
-        // Clear session or local storage
-        sessionStorage.clear();
-        localStorage.clear();
+        try {
+            await fetch('/Backend/logout.php', {
+                method: 'POST',
+                credentials: 'include',
+            });
+        } catch (_) {
+            // Even if server logout fails, clear local session to avoid stale auth state.
+        }
 
-        // Redirect to the login page or home page after logout
-        navigate('/Emlogin');
+        sessionStorage.removeItem('user-id');
+        sessionStorage.removeItem('user-role');
+        localStorage.removeItem('userId');
+
+        navigate('/login');
     }
 };
 

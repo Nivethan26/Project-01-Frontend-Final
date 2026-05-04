@@ -1,5 +1,7 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Services from "./components/Services";
 import LayoutEm from "./components/Employee/LayoutEm";
 import LayoutEm1 from "./components/Employee/LayoutEm1";
@@ -15,29 +17,39 @@ import CareerPeople from "./components/career/CareerPeople";
 import Career1 from "./components/career/Career1";
 import Jobs from "./components/job/Jobs";
 import JobDetails from "./components/job/JobDetails";
-import ChangePassword from "./components/Employee/ChangePassword";
-import EmLogin from "./components/Employee/EmLogin";
-import History from "./components/Employee/History";
-import Profile from "./components/Employee/Profile";
-import ProfileUpdate from "./components/Employee/ProfileUpdate";
-import Welcome from "./components/Employee/Welcome";
 import ServiceDetail from '../src/components/service/ServiceDetail';
 import Courses from '../src/components/Course/Courses';
 import CourseDetails from '../src/components/Course/CourseDetails'; // Import the CourseDetails component
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Employee New Layout Imports
+import EmployeeDashboardLayout from "./components/Employee/Dashboard/EmployeeDashboardLayout";
+import EmployeeHome from "./components/Employee/Dashboard/Pages/EmployeeHome";
+import EmployeeBookings from "./components/Employee/Dashboard/Pages/EmployeeBookings";
+import EmployeeJobs from "./components/Employee/Dashboard/Pages/EmployeeJobs";
+import EmployeeLeave from "./components/Employee/Dashboard/Pages/EmployeeLeave";
+import EmployeeMessages from "./components/Employee/Dashboard/Pages/EmployeeMessages";
+import EmployeeProfile from "./components/Employee/Dashboard/Pages/EmployeeProfile";
 import Home from "./components/Home/Home";
-import LoginRegister from "./components/Home/LoginRegister";
+import Login from "./components/Home/Login";
+import Register from "./components/Home/Register";
+import ForgotPassword from "./components/Home/ForgotPassword";
+import ResetPassword from "./components/Home/ResetPassword";
 import DashBoard from "./components/Home/DashBoard";
 import Admin from "./components/Admin";
 import User from "./components/User";
-import BookingStation04 from "./components/BookingStation04";
-import BookingStation01 from "./components/BookingStation01";
-import BookingStation02 from "./components/BookingStation02";
-import BookingStation03 from "./components/BookingStation03";
+import BookingStation from "./components/BookingStation";
+import PaymentForm from "./booking/components/PaymentForm/PaymentForm";
 import AppAlertsProvider from "./components/ui/AppAlertsProvider";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
-
-
+const EmployeeDashboardRedirect = () => {
+  return (
+    <ProtectedRoute allowedRoles={["employee"]}>
+      <Navigate to="/employee/dashboard" replace />
+    </ProtectedRoute>
+  );
+};
 
 const App = () => {
   return (
@@ -128,47 +140,128 @@ const App = () => {
           }
         />
         <Route
-          path="/loginregister"
+          path="/login"
           element={
             <Layout1>
-              <LoginRegister />
+              <Login />
+            </Layout1>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <Layout1>
+              <Register />
+            </Layout1>
+          }
+        />
+        <Route path="/loginregister" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/forgot-password"
+          element={
+            <Layout1>
+              <ForgotPassword />
+            </Layout1>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <Layout1>
+              <ResetPassword />
             </Layout1>
           }
         />
         <Route
           path="/dashboard"
           element={
-            <Layout2>
-              <DashBoard />
-            </Layout2>
+            <ProtectedRoute>
+              <Layout2>
+                <DashBoard />
+              </Layout2>
+            </ProtectedRoute>
           }
         />
-        <Route path="/admin/*" element={<Admin />} />
-        <Route path="/user/*" element={<User />} />
-        <Route path="/bookingstation04/*" element={<BookingStation04 />} />
-        <Route path="/bookingstation01/*" element={<BookingStation01 />} />
-        <Route path="/bookingstation02/*" element={<BookingStation02 />} />
-        <Route path="/bookingstation03/*" element={<BookingStation03 />} />
+        <Route
+          path="/employee/*"
+          element={
+            <ProtectedRoute allowedRoles={["employee"]}>
+              <EmployeeDashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<EmployeeHome />} />
+          <Route path="bookings/*" element={<EmployeeBookings />} />
+          <Route path="jobs" element={<EmployeeJobs />} />
+          <Route path="leave" element={<EmployeeLeave />} />
+          <Route path="messages" element={<EmployeeMessages />} />
+          <Route path="profile" element={<EmployeeProfile />} />
+        </Route>
+
+        <Route path="/employee-dashboard" element={<EmployeeDashboardRedirect />} />
+        <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/*"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <User />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/booking-station/:stationId/*"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <BookingStation />
+            </ProtectedRoute>
+          }
+        />
+        {/* Backward compat redirects for old station URLs */}
+        <Route path="/bookingstation01/*" element={<Navigate to="/booking-station/1" replace />} />
+        <Route path="/bookingstation02/*" element={<Navigate to="/booking-station/2" replace />} />
+        <Route path="/bookingstation03/*" element={<Navigate to="/booking-station/3" replace />} />
+        <Route path="/bookingstation04/*" element={<Navigate to="/booking-station/4" replace />} />
+
+        {/* Checkout Route */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <PaymentForm />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/courses/:id" element={<CourseDetails />} /> {/* View course details by ID */}
         <Route path="/courses" element={<Courses />} /> {/* List specific course */}
         <Route path="/services/:id" element={<ServiceDetail />} /> {/* View course details by ID */}
         <Route path="/jobs" element={<Jobs />} /> {/* Route for Courses */}
         <Route path="/jobs/:id" element={<JobDetails />} />
 
-        <Route path="/changePassword/:id" element={<LayoutEm1><ChangePassword /></LayoutEm1>} />
-        <Route path="/emLogin" element={<EmLogin />} />
-        <Route path="/History/:id" element={<LayoutEm1><History /></LayoutEm1>} />
-        <Route path="/profileupdate/:id" element={<LayoutEm1><ProfileUpdate /></LayoutEm1>} />
-        <Route path="/profile/:id" element={<LayoutEm1><Profile /></LayoutEm1>} />
-        <Route path="/welcome/:id" element={<LayoutEm><Welcome /></LayoutEm>} />
+        {/* Redirect old employee routes to the new dashboard */}
+        <Route path="/changePassword/:id" element={<Navigate to="/employee/profile" replace />} />
+        <Route path="/History/:id" element={<Navigate to="/employee/leave" replace />} />
+        <Route path="/profileupdate/:id" element={<Navigate to="/employee/profile" replace />} />
+        <Route path="/profile/:id" element={<Navigate to="/employee/profile" replace />} />
+        <Route path="/welcome/:id" element={<Navigate to="/employee/dashboard" replace />} />
       
       </Routes>
      
     </BrowserRouter>
+    
     </AppAlertsProvider>
 
-   
-        
+
+
     </div>
   );
 };

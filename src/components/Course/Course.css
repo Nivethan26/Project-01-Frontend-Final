@@ -1,22 +1,70 @@
 /* Hero Title wrapper */
 .courses-hero {
   text-align: center;
-  margin: 60px 0 40px;
+  padding-top: 100px;
+  padding-bottom: 80px;
+  margin-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .courses-hero h1 {
   font-size: 2.8rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-transform: uppercase;
+  line-height: 1.2;
+  max-width: 900px;
+  letter-spacing: 0.5px;
 }
 
 .courses-hero p {
   color: #666;
-  font-size: 1.1rem;
-  max-width: 600px;
+  font-size: 1.15rem;
+  max-width: 680px;
   margin: 0 auto;
+  line-height: 1.7;
+  margin-bottom: 0;
+}
+
+/* Responsive hero adjustments */
+@media (max-width: 768px) {
+  .courses-hero {
+    padding-top: 80px;
+    padding-bottom: 60px;
+    margin-bottom: 40px;
+  }
+
+  .courses-hero h1 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .courses-hero p {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .courses-hero {
+    padding-top: 70px;
+    padding-bottom: 50px;
+    margin-bottom: 32px;
+  }
+
+  .courses-hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .courses-hero p {
+    font-size: 1rem;
+  }
 }
 
 /* Modern Course Card */
@@ -35,7 +83,8 @@
 
 .course-card-modern:hover {
   transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(218, 23, 39, 0.15); /* Brand red glow */
+  box-shadow: 0 15px 35px rgba(218, 23, 39, 0.15);
+  /* Brand red glow */
 }
 
 /* Badges */
@@ -43,7 +92,8 @@
   position: absolute;
   top: 15px;
   left: 15px;
-  background-color: #da1727; /* Brand red */
+  background-color: #da1727;
+  /* Brand red */
   color: #fff;
   padding: 5px 12px;
   font-size: 0.8rem;
@@ -145,7 +195,8 @@
   justify-content: center;
   margin-top: auto;
   box-shadow: 0 4px 10px rgba(218, 23, 39, 0.25);
-  width: 100%; /* Better for cards */
+  width: 100%;
+  /* Better for cards */
 }
 
 .btn-course-enroll:hover {
@@ -157,12 +208,18 @@
 
 /* Animations */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .course-anim-st {
   animation: fadeInUp 0.8s ease-out forwards;
   opacity: 0;
 }
-

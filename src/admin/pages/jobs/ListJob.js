@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -52,20 +53,10 @@ export default function ListJobs() {
       try {
         await axios.delete(`http://localhost/Backend/api/deletejob.php?delete=${id}`);
         setJobs(jobs.filter((job) => job.id !== id));
-        Swal.fire({
-          title: 'Deleted!',
-          text: 'The course has been deleted.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        });
+        toast.success('The course has been deleted.');
       } catch (error) {
         console.error("Error deleting job:", error);
-        Swal.fire({
-          title: 'Error!',
-          text: 'There was an issue deleting the job. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'Retry',
-        });
+        toast.error('There was an issue deleting the job. Please try again.');
       }
     } else {
       // User clicked 'cancel' or closed the popup

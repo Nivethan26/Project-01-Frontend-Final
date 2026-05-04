@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from "../../utils/modernAlert";
 import { 
@@ -27,6 +27,12 @@ export default function CourseDetails() {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isDirty, setIsDirty] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -49,17 +55,50 @@ export default function CourseDetails() {
   }, [id]);
 
   const handleApplyNowClick = () => {
-    // Ensure form is clean when opening the modal
+    const sessionEmail = sessionStorage.getItem("email");
+    if (!sessionEmail) {
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+      navigate('/User/login');
+      return;
+    }
+    
+    const sessionName = sessionStorage.getItem("username") || '';
+
     setFormData({
       courseId: course ? course.courseId : '',
-      name: '',
-      email: '',
+      name: sessionName,
+      email: sessionEmail,
       phone: '',
     });
     setFormErrors({});
     setIsDirty(false);
+    setSubmitError('');
+    setSuccess(false);
+    setAlreadyApplied(false);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!isModalOpen || !course || !formData.email) return;
+
+    const checkIfApplied = async () => {
+      setCheckingApplication(true);
+      try {
+        const response = await fetch(
+          `/Backend/checkApplication.php?email=${encodeURIComponent(formData.email)}&courseId=${encodeURIComponent(course.courseId)}`
+        );
+        const data = await response.json();
+        if (data.alreadyApplied) {
+          setAlreadyApplied(true);
+        }
+      } catch (err) {
+        console.error('Check failed:', err);
+      } finally {
+        setCheckingApplication(false);
+      }
+    };
+    checkIfApplied();
+  }, [isModalOpen, course, formData.email]);
 
   const handleCloseModal = async () => {
     if (isDirty) {
@@ -131,58 +170,42 @@ export default function CourseDetails() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Format phone correctly before submitting
-    const submissionData = {
-      ...formData,
-      phone: `+94${formData.phone}`,
-    };
+    setSubmitLoading(true);
+    setSubmitError('');
 
     try {
-      const response = await axios.post(
-        'http://localhost/Backend/api/submit_application.php',
-        submissionData,
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+        const payload = {
+            courseId: course.courseId,
+            courseName: course.courseName,
+            fullName: formData.name,
+            email: formData.email,
+            phone: `+94${formData.phone}`
+        };
+
+        const response = await fetch(
+            '/Backend/applyCourse.php',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+            setSuccess(true);
+            setIsDirty(false);
+        } else if (response.status === 409) {
+            setAlreadyApplied(true);
+            setSubmitError(result.message);
+        } else {
+            setSubmitError(result.message || 'Failed to submit. Please try again.');
         }
-      );
-
-      if (response.data.status == 1) {
-        // 1. Close modal and reset state immediately
-        setIsDirty(false);
-        setFormData({
-          courseId: course.courseId,
-          name: '',
-          email: '',
-          phone: '',
-        });
-        setFormErrors({});
-        setIsModalOpen(false);
-
-        // 2. Then show the success popup
-        await Swal.fire({
-          title: 'Submission Success!',
-          text: response.data.message || 'Thank you for applying.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        });
-      } else {
-        Swal.fire({
-          title: 'Submission Failed!',
-          text: response.data.message || 'Unable to submit the application. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'Retry',
-        });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      Swal.fire({
-        title: 'Submission Error!',
-        text: 'An unexpected error occurred. Please try again.',
-        icon: 'error',
-        confirmButtonText: 'Retry',
-      });
+    } catch (err) {
+        setSubmitError('Network error. Please try again.');
+    } finally {
+        setSubmitLoading(false);
     }
   };
 
@@ -342,46 +365,127 @@ export default function CourseDetails() {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-premium-content" onClick={(e) => e.stopPropagation()}>
             <button className="premium-close-btn" onClick={handleCloseModal}>&times;</button>
-            <h3 className="modal-title text-center mb-4">Apply for {course.courseName}</h3>
-            <form onSubmit={handleFormSubmit} noValidate>
-              <div className="form-group modern-input-group">
-                <label htmlFor="courseId">Course ID</label>
-                <input type="text" id="courseId" name="courseId" className="form-control" value={formData.courseId} readOnly />
-              </div>
-              <div className="form-group modern-input-group">
-                <label htmlFor="name">Full Name</label>
-                <input type="text" id="name" name="name" className="form-control" value={formData.name} onChange={handleInputChange} placeholder="Enter your full name" />
-                {formErrors.name && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.name}</span>}
-              </div>
-              <div className="form-group modern-input-group">
-                <label htmlFor="email">Email Address</label>
-                <input type="email" id="email" name="email" className="form-control" value={formData.email} onChange={handleInputChange} placeholder="Enter your email" />
-                {formErrors.email && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.email}</span>}
-              </div>
-              <div className="form-group modern-input-group">
-                <label htmlFor="phone">Phone Number</label>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ padding: '14px 16px', backgroundColor: '#f5f5f5', border: '1px solid #ddd', borderRight: 'none', borderRadius: '10px 0 0 10px', color: '#555', fontWeight: '500', boxSizing: 'border-box', margin: 0, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    +94
-                  </span>
-                  <input type="tel" id="phone" name="phone" className="form-control" value={formData.phone} onChange={handleInputChange} placeholder="7X XXX XXXX" style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1, margin: 0 }} />
+            {checkingApplication ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+                  <span className="visually-hidden">Loading...</span>
                 </div>
-                {formErrors.phone && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.phone}</span>}
+                <h4 style={{ color: '#4b5563', fontWeight: 500 }}>Checking application status...</h4>
               </div>
-              
-              {/* Disable Button dynamically if inherently invalid, or let validateForm handle on-click */}
-              <button 
-                type="submit" 
-                className="btn-premium-submit" 
-                disabled={!formData.name || !formData.email || formData.phone.length !== 9}
-                style={{ 
-                  opacity: (!formData.name || !formData.email || formData.phone.length !== 9) ? 0.6 : 1, 
-                  cursor: (!formData.name || !formData.email || formData.phone.length !== 9) ? 'not-allowed' : 'pointer' 
-                }}
-              >
-                Submit Application
-              </button>
-            </form>
+            ) : success ? (
+              <div className="text-center py-4">
+                <CheckCircle sx={{ fontSize: 64, color: '#10b981', marginBottom: '16px' }} />
+                <h3 className="mb-2" style={{ fontWeight: 600, color: '#111827' }}>Application Submitted!</h3>
+                <p style={{ color: '#6b7280', marginBottom: '24px' }}>We will review your application and get back to you.</p>
+                
+                <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px', textAlign: 'left', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Course ID:</span>
+                    <span style={{ fontWeight: 500 }}>{course.courseId}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Course:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{course.courseName}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Name:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{formData.name}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Email:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{formData.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Status:</span>
+                    <span style={{ fontWeight: 600, color: '#10b981' }}>Submitted ✓</span>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                  <button onClick={() => navigate('/User/applications')} style={{ backgroundColor: '#f3f4f6', color: '#374151', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    View My Applications
+                  </button>
+                  <button onClick={handleCloseModal} style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : alreadyApplied ? (
+              <div className="text-center py-4">
+                <CheckCircle sx={{ fontSize: 64, color: '#10b981', marginBottom: '16px' }} />
+                <h3 className="mb-2" style={{ fontWeight: 700, color: '#111827', fontSize: '24px' }}>Already Applied!</h3>
+                <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '15px' }}>
+                  You have already submitted an application for this course.
+                </p>
+                
+                <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px', textAlign: 'left', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Course:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{course.courseName}</span>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button onClick={() => navigate('/User/applications')} style={{ width: '100%', backgroundColor: '#1e3a8a', color: 'white', border: 'none', padding: '12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    View My Applications
+                  </button>
+                  <button onClick={handleCloseModal} style={{ width: '100%', backgroundColor: 'transparent', color: '#4b5563', border: '1px solid #d1d5db', padding: '12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h3 className="modal-title text-center mb-4">Apply for {course.courseName}</h3>
+                <form onSubmit={handleFormSubmit} noValidate>
+                  {submitError && !alreadyApplied && (
+                    <div style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #dc2626', padding: '12px 16px', borderRadius: '4px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '18px' }}>⚠️</span>
+                      <span style={{ color: '#dc2626', fontSize: '14px', fontWeight: 500 }}>{submitError}</span>
+                    </div>
+                  )}
+                  <div className="form-group modern-input-group">
+                    <label htmlFor="courseId">Course ID</label>
+                    <input type="text" id="courseId" name="courseId" className="form-control" value={formData.courseId} readOnly style={{ backgroundColor: '#f3f4f6' }} />
+                  </div>
+                  <div className="form-group modern-input-group">
+                    <label htmlFor="name">Full Name</label>
+                    <input type="text" id="name" name="name" className="form-control" value={formData.name} onChange={handleInputChange} placeholder="Enter your full name" />
+                    {formErrors.name && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.name}</span>}
+                  </div>
+                  <div className="form-group modern-input-group">
+                    <label htmlFor="email">Email Address</label>
+                    <input type="email" id="email" name="email" className="form-control" value={formData.email} readOnly style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }} />
+                    {formErrors.email && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.email}</span>}
+                  </div>
+                  <div className="form-group modern-input-group">
+                    <label htmlFor="phone">Phone Number</label>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <span style={{ padding: '14px 16px', backgroundColor: '#f5f5f5', border: '1px solid #ddd', borderRight: 'none', borderRadius: '10px 0 0 10px', color: '#555', fontWeight: '500', boxSizing: 'border-box', margin: 0, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        +94
+                      </span>
+                      <input type="tel" id="phone" name="phone" className="form-control" value={formData.phone} onChange={handleInputChange} placeholder="7X XXX XXXX" style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1, margin: 0 }} />
+                    </div>
+                    {formErrors.phone && <span style={{ color: '#ff4d4f', fontSize: '13px', marginTop: '4px', display: 'block' }}>{formErrors.phone}</span>}
+                  </div>
+                  
+                  {/* Disable Button dynamically if inherently invalid, or let validateForm handle on-click */}
+                  <button 
+                    type="submit" 
+                    className="btn-premium-submit" 
+                    disabled={!formData.name || !formData.email || formData.phone.length !== 9 || submitLoading}
+                    style={{ 
+                      opacity: (!formData.name || !formData.email || formData.phone.length !== 9 || submitLoading) ? 0.6 : 1, 
+                      cursor: (!formData.name || !formData.email || formData.phone.length !== 9 || submitLoading) ? 'not-allowed' : 'pointer' 
+                    }}
+                  >
+                    {submitLoading ? (
+                      <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style={{ width: '1rem', height: '1rem', borderWidth: '0.15em' }}></span> Submitting...</>
+                    ) : 'Submit Application'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

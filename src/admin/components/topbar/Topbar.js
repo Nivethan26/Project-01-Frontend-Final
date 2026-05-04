@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Swal from "../../../utils/modernAlert";
 import "./topbar.css";
 import { NotificationsNone, Language, Settings } from '@mui/icons-material';
@@ -6,18 +6,42 @@ import { NotificationsNone, Language, Settings } from '@mui/icons-material';
 export default function Topbar() {
 
   const [username, setUsername] = useState("");
+  const hasFetchedUser = useRef(false);
 
   useEffect(() => {
-    // Fetch the username from the session or API
+    if (hasFetchedUser.current) {
+      return;
+    }
+    hasFetchedUser.current = true;
+
+    // Read from session first, then hydrate from backend session if available.
     const fetchUser = async () => {
-      const response = await fetch("http://localhost/Backend/getUser.php");
-      const data = await response.json();
-      setUsername(data.username);
-      const username = sessionStorage.getItem("username");
-      if (username) {
-        setUsername(username);
+      const cachedUsername = sessionStorage.getItem("username");
+      if (cachedUsername) {
+        setUsername(cachedUsername);
+        return;
+      }
+
+      try {
+        const response = await fetch("/Backend/getUser.php", {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        const apiUsername = data?.user?.username;
+        if (apiUsername) {
+          setUsername(apiUsername);
+          sessionStorage.setItem("username", apiUsername);
+        }
+      } catch (_) {
+        // Keep current UI state from sessionStorage if API call fails.
       }
     };
+
     fetchUser();
   }, []);
 
@@ -28,30 +52,21 @@ export default function Topbar() {
       text: "Do you want to logout?",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: '<i class="fa fa-sign-out-alt"></i> Yes, logout!',
+      confirmButtonText: 'Yes, logout',
       cancelButtonText: 'Cancel',
-      confirmButtonColor: '#d33', // Red color for the confirm button
-      cancelButtonColor: '#3085d6', // Blue color for the cancel button
-      background: '#f9f9f9', // Soft background color
-      backdrop: `
-        rgba(0,0,123,0.4)
-        url("https://i.gifer.com/ZZ5H.gif") // Background effect with gif
-        left top
-        no-repeat
-      `,
-      customClass: {
-        title: 'my-title-class', // Custom title style class
-        popup: 'my-popup-class', // Custom popup style class
-        confirmButton: 'my-confirm-button-class', // Custom button style class
-        cancelButton: 'my-cancel-button-class' // Custom cancel button style class
-      }
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      reverseButtons: true,
     });
   
     // If confirmed, perform logout
     if (isConfirmed) {
-      await fetch("http://localhost/Backend/logout.php", { method: "POST" });
+      await fetch("/Backend/logout.php", {
+        method: "POST",
+        credentials: "include",
+      });
       sessionStorage.clear();
-      window.location.href = "/LoginRegister"; // Redirect to login page
+      window.location.href = "/login";
     }
   };
 

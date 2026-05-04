@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AdminHome from "../admin/pages/home/AdminHome";
 import AdminEm from "../admin/pages/employee/AdminEm";
 import Employ from "../admin/pages/employee/Employ";
@@ -20,10 +20,7 @@ import PendingApplications from "../admin/pages/employee/PendingApplications";
 import EditJob from "../admin/pages/jobs/EditJob";
 import Viewjobform from "../admin/pages/jobs/Viewjobform";
 import LeaveTypes from "../admin/pages/employee/LeaveTypes";
-import BookingsList01 from "../admin/pages/bookingList/BookingList01";
-import BookingsList02 from "../admin/pages/bookingList/BookingList02";
-import BookingsList03 from "../admin/pages/bookingList/BookingList03";
-import BookingsList04 from "../admin/pages/bookingList/BookingList04";
+import BookingsList from "../admin/pages/bookingList/BookingList";
 import MessagesList from "../admin/pages/messagesList/MessagesList";
 import ListCourse from '../admin/pages/course/ListCourse';
 import AddCourse from '../admin/pages/course/AddCourse';
@@ -58,10 +55,12 @@ const Admin = () => {
             <Route path="/adminEm/leaveApplication" element={<LeaveApplication />} />
             <Route path="/adminEm/declinedApplications" element={<DeclinedApplications />} />
             <Route path="/adminEm/declinedApplicationDetails/:id" element={<DeclinedApplicationDetails />} />  
-            <Route path="/bookingList01" element={<BookingsList01 />} />
-            <Route path="/bookingList02" element={<BookingsList02 />} />
-            <Route path="/bookingList03" element={<BookingsList03 />} />
-            <Route path="/bookingList04" element={<BookingsList04 />} />
+            <Route path="/bookings" element={<BookingsList />} />
+            {/* Backward compat redirects */}
+            <Route path="/bookingList01" element={<Navigate to="/admin/bookings?station=1" replace />} />
+            <Route path="/bookingList02" element={<Navigate to="/admin/bookings?station=2" replace />} />
+            <Route path="/bookingList03" element={<Navigate to="/admin/bookings?station=3" replace />} />
+            <Route path="/bookingList04" element={<Navigate to="/admin/bookings?station=4" replace />} />
             <Route path="/messageList" element={<MessagesList />} />
             {/* Course management routes */}
             <Route path="/courses" element={<ListCourse />} /> {/* List all courses */}

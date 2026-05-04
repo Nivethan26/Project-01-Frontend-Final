@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
@@ -59,35 +60,20 @@ const AddLeaveType = () => {
               }
               
               // Success message
-              Swal.fire({
-                title: 'Success!',
-                text: 'Leave type has been added.',
-                icon: 'success',
-                confirmButtonText: 'OK',
-              });
+              toast.success('Leave type has been added.');
             } catch (error) {
               console.error("Error adding leave type:", error);
               setMessage("There was an error adding the leave type. Please try again.");
               
               // Error message
-              Swal.fire({
-                title: 'Error!',
-                text: 'There was an issue adding the leave type. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Retry',
-              });
+              toast.error('There was an issue adding the leave type. Please try again.');
             } finally {
               setLoading(false);
             }
           }
         } else {
           setMessage("Please enter a leave type.");
-          Swal.fire({
-            title: 'Warning!',
-            text: 'Please enter a leave type before submitting.',
-            icon: 'warning',
-            confirmButtonText: 'OK',
-          });
+          toast.warning('Please enter a leave type before submitting.');
         }
       };
       

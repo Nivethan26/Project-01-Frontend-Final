@@ -7,16 +7,35 @@ export default function UserTopbar() {
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    // Fetch the username from the session or API
+    // Read from session first, then hydrate from backend session if available.
     const fetchUser = async () => {
-      const response = await fetch("http://localhost/Backend/getUser.php");
-      const data = await response.json();
-      setUsername(data.username);
-      const username = sessionStorage.getItem("username");
-      if (username) {
-        setUsername(username);
+      const cachedUsername = sessionStorage.getItem("username");
+      if (cachedUsername) {
+        setUsername(cachedUsername);
+        return;
+      }
+
+      try {
+        const response = await fetch("/Backend/getUser.php", {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        const apiUsername = data?.user?.username || data?.username;
+
+        if (apiUsername) {
+          setUsername(apiUsername);
+          sessionStorage.setItem("username", apiUsername);
+        }
+      } catch (_) {
+        // Keep UI state from sessionStorage if API call fails.
       }
     };
+
     fetchUser();
   }, []);
 
@@ -27,7 +46,7 @@ export default function UserTopbar() {
       text: "Do you want to logout?",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: '<i class="fa fa-sign-out-alt"></i> Yes, logout!',
+      confirmButtonText: 'Yes, logout!',
       cancelButtonText: 'Cancel',
       confirmButtonColor: '#d33', // Red color for the confirm button
       cancelButtonColor: '#3085d6', // Blue color for the cancel button
@@ -48,9 +67,18 @@ export default function UserTopbar() {
   
     // If confirmed, perform logout
     if (isConfirmed) {
-      await fetch("http://localhost/Backend/logout.php", { method: "POST" });
+      try {
+        await fetch("/Backend/logout.php", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (_) {
+        // Even if server logout fails, clear local session to avoid stale auth state.
+      }
+
       sessionStorage.clear();
-      window.location.href = "/LoginRegister"; // Redirect to login page
+      localStorage.removeItem("userId");
+      window.location.href = "/login";
     }
   };
   

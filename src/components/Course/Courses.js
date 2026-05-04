@@ -8,15 +8,34 @@ export default function Courses() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [appliedIds, setAppliedIds] = useState([]);
 
     useEffect(() => {
         getCourses();
+        fetchAppliedCourses();
     }, []);
 
-    const getCourses = async () => {
+    const fetchAppliedCourses = async () => {
+        const email = sessionStorage.getItem("email");
+        if (!email) return;
         try {
+            const response = await fetch(`/Backend/checkApplication.php?email=${encodeURIComponent(email)}&getAllIds=true`);
+            const data = await response.json();
+            if (data.appliedCourseIds) {
+                setAppliedIds(data.appliedCourseIds);
+            }
+        } catch (err) {
+            console.error("Failed to fetch applied courses:", err);
+        }
+    };
+
+    const getCourses = async () => {
+        console.log('[Courses] useEffect triggered, fetching course list...');
+        try {
+            console.log('[Courses] API call start: /Backend/api/index.php');
             const response = await axios.get('http://localhost/Backend/api/index.php/');
             console.log('API Response:', response.data);
+            console.log('[Courses] API call success');
             if (Array.isArray(response.data)) {
                 setCourses(response.data);
             } else {
@@ -25,6 +44,7 @@ export default function Courses() {
             }
         } catch (error) {
             console.error('Error fetching courses:', error);
+            console.error('[Courses] API call failed', error?.response?.status, error?.message);
             setError(error);
         } finally {
             setLoading(false);
@@ -90,9 +110,20 @@ export default function Courses() {
                                     </div>
 
                                     {/* Modernized Full Card CTA button */}
-                                    <Link to={`/courses/${course.id}`} className="btn-course-enroll">
-                                        View Course <ArrowForwardIcon fontSize="small" className="ms-2" />
-                                    </Link>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <Link to={`/courses/${course.id}`} className="btn-course-enroll" style={{ flex: 1, textAlign: 'center' }}>
+                                            View Details
+                                        </Link>
+                                        {appliedIds.includes(course.courseId) ? (
+                                            <button disabled className="btn-course-enroll" style={{ flex: 1, backgroundColor: '#9ca3af', color: 'white', border: 'none', cursor: 'not-allowed' }}>
+                                                ✓ Applied
+                                            </button>
+                                        ) : (
+                                            <button className="btn-course-enroll" style={{ flex: 1, backgroundColor: '#da1727', color: 'white', border: 'none' }} onClick={() => window.location.href = `/courses/${course.id}`}>
+                                                Apply Now
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

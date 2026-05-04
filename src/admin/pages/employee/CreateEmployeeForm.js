@@ -1,7 +1,8 @@
+import { toast } from 'react-toastify';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, CircularProgress, ThemeProvider, createTheme } from '@mui/material';
-import Swal from '../../../utils/modernAlert';
+
 
 // Create a custom theme
 const theme = createTheme({
@@ -55,23 +56,14 @@ const CreateEmployeeForm = () => {
             const result = await response.json();
 
             if (response.ok) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Employee created successfully.',
-                });
+                await ( toast.success('Employee created successfully.'), new Promise(res => setTimeout(res, 2000)) );
                 navigate('/admin/adminEm/employ');
             } else {
-                await Swal.fire({
-                    icon: 'error',
-                    title: result.message || 'An error occurred.',
-                });
+                await ( toast.error(result.message || 'An error occurred.'), new Promise(res => setTimeout(res, 2000)) );
             }
         } catch (error) {
             console.error('Error:', error);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Failed to create employee. Please try again.',
-            });
+            await ( toast.error('Failed to create employee. Please try again.'), new Promise(res => setTimeout(res, 2000)) );
         } finally {
             setLoading(false);
         }

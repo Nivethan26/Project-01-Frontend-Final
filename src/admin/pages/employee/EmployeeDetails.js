@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -37,25 +38,13 @@ const EmployeeDetails = () => {
                     });
                 } else {
                     console.error('Employee not found:', data);
-                    Swal.fire({
-                        title: 'Employee not found!',
-                        text: 'The employee details could not be found. Please check the ID and try again.',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e74c3c',
-                    }).then(() => {
+                    ( toast.error('The employee details could not be found. Please check the ID and try again.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
                         navigate('/admin/adminEm/employ'); // Navigate back if employee is not found
                     });
                 }
             } catch (error) {
                 console.error('Error fetching employee details:', error.response ? error.response.data : error.message);
-                Swal.fire({
-                    title: 'Failed to load employee details!',
-                    text: 'There was an error loading the employee details. Please check your connection or try again later.',
-                    icon: 'error',
-                    confirmButtonText: 'Retry',
-                    confirmButtonColor: '#e74c3c',
-                }).then(() => {
+                ( toast.error('There was an error loading the employee details. Please check your connection or try again later.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
                     navigate('/admin/adminEm/employ');
                 });
             } finally {
@@ -66,13 +55,7 @@ const EmployeeDetails = () => {
         if (id) { // Ensure id is defined before fetching
             fetchEmployeeDetails();
         } else {
-            Swal.fire({
-                title: 'Invalid Employee ID!',
-                text: 'The employee ID is not valid. Please check the ID and try again.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#f39c12',
-            }).then(() => {
+            ( toast.warning('The employee ID is not valid. Please check the ID and try again.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
                 navigate('/admin/adminEm/employ');
             });
         }        
@@ -110,13 +93,7 @@ const EmployeeDetails = () => {
         e.preventDefault();
     
         if (Object.values(errors).some((error) => error)) {
-            Swal.fire({
-                title: 'Please fix the errors!',
-                text: 'You have some errors in the form. Please correct them before submitting.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3085d6',
-            });
+            toast.warning('You have some errors in the form. Please correct them before submitting.');
             return;
         }
     
@@ -127,25 +104,13 @@ const EmployeeDetails = () => {
             });
     
             if (response.status === 200) {
-                Swal.fire({
-                    title: 'Employee updated successfully!',
-                    text: 'The employee details have been successfully updated.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#28a745',
-                }).then(() => {
+                ( toast.success('The employee details have been successfully updated.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
                     navigate('/admin/adminEm/employ');
                 });
             }
         } catch (error) {
             console.error('Error updating employee details:', error);
-            Swal.fire({
-                title: 'Failed to update employee!',
-                text: 'There was an error updating the employee details. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Retry',
-                confirmButtonColor: '#e74c3c',
-            });
+            toast.error('There was an error updating the employee details. Please try again.');
         }
     };
     
@@ -170,25 +135,13 @@ const EmployeeDetails = () => {
                 });
     
                 if (response.status === 200) {
-                    Swal.fire({
-                        title: 'Employee deleted!',
-                        text: 'The employee has been deleted successfully.',
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#28a745',
-                    }).then(() => {
+                    ( toast.success('The employee has been deleted successfully.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
                         navigate('/admin/adminEm/employ');
                     });
                 }
             } catch (error) {
                 console.error('Error deleting employee:', error);
-                Swal.fire({
-                    title: 'Failed to delete employee!',
-                    text: 'There was an error deleting the employee. Please try again.',
-                    icon: 'error',
-                    confirmButtonText: 'Retry',
-                    confirmButtonColor: '#e74c3c',
-                });
+                toast.error('There was an error deleting the employee. Please try again.');
             }
         }
     };

@@ -1,12 +1,12 @@
+import { toast } from 'react-toastify';
 import React, { useState } from "react";
-import Swal from "../../utils/modernAlert";
+
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import img1 from "../assets/A20.jpg";
 import img2 from "../assets/A21.jpg";
 import img3 from "../assets/A22.jpg";
-import "./Contactus.css";
 import "./Contactus.css";
 
 const ContactForm = () => {
@@ -20,6 +20,7 @@ const ContactForm = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateField = (name, value) => {
     let errorMsg = "";
@@ -45,6 +46,13 @@ const ContactForm = () => {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(value)) {
         errorMsg = "Please enter a valid email address.";
+      }
+    }
+
+    if (name === "message") {
+      const msg = String(value || "").trim();
+      if (!msg) {
+        errorMsg = "Message is required.";
       }
     }
 
@@ -75,6 +83,7 @@ const ContactForm = () => {
     newErrors.firstName = validateField("firstName", formData.firstName);
     newErrors.phone = validateField("phone", formData.phone);
     newErrors.email = validateField("email", formData.email);
+    newErrors.message = validateField("message", formData.message);
 
     // Filter out empty error messages
     Object.keys(newErrors).forEach((key) => {
@@ -87,38 +96,45 @@ const ContactForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Perform validation
-  if (!validateForm()) {
-    return; // Exit if form validation fails
-  }
+    if (isSubmitting) {
+      return;
+    }
 
-  try {
-    const response = await fetch(
-      "http://localhost/Backend/submit_message.php",
-      {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/Backend/submit_message.php", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(formData),
+      });
+
+      const raw = await response.text();
+      let result = null;
+      try {
+        result = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        result = null;
       }
-    );
 
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      const result = await response.json();
+      // If backend returns valid JSON, respect explicit success:false.
+      // If backend returns empty/invalid JSON but HTTP is OK, treat as success
+      // to avoid false UI errors when email was actually sent.
+      const success = response.ok && result?.success !== false;
 
-      if (result.success) {
-        // SweetAlert2 success popup
-        await Swal.fire({
-          title: 'Success',
-          text: 'Message is successfully sent.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        });
+      if (success) {
+        await ( toast.success(result?.message || "Message sent successfully."), new Promise(res => setTimeout(res, 2000)) );
 
         setFormData(initialFormData);
         setShowSuccess(true);
@@ -126,46 +142,33 @@ const handleSubmit = async (e) => {
           setShowSuccess(false);
         }, 3000);
       } else {
-        console.error(result.message);
-        // SweetAlert2 error popup
-        await Swal.fire({
-          title: 'Error',
-          text: `Error: ${result.message}`,
-          icon: 'error',
-          confirmButtonText: 'OK',
-        });
-      }
-    } else {
-      console.error("Response is not JSON:", await response.text());
-      // SweetAlert2 success popup for non-JSON response
-      await Swal.fire({
-        title: 'Success',
-        text: 'Message is successfully sent.',
-        icon: 'success',
-        confirmButtonText: 'OK',
-      });
-    }
-  } catch (error) {
-    console.error("Error submitting the form:", error);
-    // SweetAlert2 error popup for fetch error
-    await Swal.fire({
-      title: 'Error',
-      text: 'An error occurred while submitting the form.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-  }
-};
+        const backendMessage =
+          result?.message ||
+          result?.error ||
+          (raw ? String(raw).slice(0, 300) : "") ||
+          "Could not send your message. Please try again.";
 
+        await ( toast.error(backendMessage), new Promise(res => setTimeout(res, 2000)) );
+      }
+    } catch (error) {
+      console.error("Error submitting the form:", error);
+      await ( toast.error("An error occurred while submitting the form."), new Promise(res => setTimeout(res, 2000)) );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const settings = {
     dots: true,
     infinite: true,
-    speed: 200,
+    speed: 100,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 1000,
+    pauseOnHover: false,
+    pauseOnFocus: false,
+    pauseOnDotsHover: false,
+    autoplaySpeed: 800,
   };
 
   return (
@@ -276,12 +279,22 @@ const handleSubmit = async (e) => {
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
-                className="contact-input contact-input-textarea"
+                required
+                className={`contact-input contact-input-textarea ${errors.message ? "contact-has-error" : ""}`}
               />
+              {errors.message && <div className="contact-error-text">{errors.message}</div>}
             </div>
             
-            <button type="submit" className="contact-btn-submit">
-              Submit
+            <button
+              type="submit"
+              className="contact-btn-submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
+              <span className="contact-btn-content">
+                {isSubmitting && <span className="contact-spinner" aria-hidden="true" />}
+                {isSubmitting ? "Sending..." : "Submit"}
+              </span>
             </button>
             <div className="contact-helper-text">
               We'll get back to you within 24 hours.

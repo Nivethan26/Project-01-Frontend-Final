@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -52,10 +53,7 @@ const EditLeaveType = () => {
 
         const trimmedLeaveType = leaveType.trim();
         if (trimmedLeaveType === '') {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Leave type cannot be empty.',
-            });
+            await ( toast.error('Leave type cannot be empty.'), new Promise(res => setTimeout(res, 2000)) );
             return;
         }
 
@@ -84,24 +82,15 @@ const EditLeaveType = () => {
                 if (response.data && response.data.success) {
                     setSuccessMessage(response.data.message);
                     setErrorMessage(''); // Clear error message if update was successful
-                    await Swal.fire({
-                        icon: 'success',
-                        title: response.data.message || 'Leave type updated successfully.',
-                    });
+                    await ( toast.success(response.data.message || 'Leave type updated successfully.'), new Promise(res => setTimeout(res, 2000)) );
                 } else {
                     setErrorMessage("Failed to update leave type. " + (response.data.message || 'Unknown error.'));
-                    await Swal.fire({
-                        icon: 'error',
-                        title: response.data.message || 'Failed to update leave type.',
-                    });
+                    await ( toast.error(response.data.message || 'Failed to update leave type.'), new Promise(res => setTimeout(res, 2000)) );
                 }
             } catch (error) {
                 console.error("Error updating the leave type:", error);
                 setErrorMessage("Error updating the leave type. Please try again.");
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Error updating the leave type. Please try again.',
-                });
+                await ( toast.error('Error updating the leave type. Please try again.'), new Promise(res => setTimeout(res, 2000)) );
             }
         }
     };

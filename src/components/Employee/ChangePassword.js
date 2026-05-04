@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useState } from 'react';
 import Swal from "../../utils/modernAlert";
 import axios from 'axios';
@@ -6,7 +7,7 @@ import { useParams } from 'react-router-dom';
 
 const ChangePassword = ({ id: propId }) => {
     const { id: paramId } = useParams(); // Access id from URL params if available
-    const userId = propId || paramId; // Use propId if passed, otherwise use paramId
+    const userId = propId || paramId || localStorage.getItem("userId"); // Use propId if passed, otherwise use paramId
 
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -23,7 +24,7 @@ const ChangePassword = ({ id: propId }) => {
             text: "Do you want to change the password?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-key"></i> Yes, change it!',
+            confirmButtonText: 'Yes, change it!',
             cancelButtonText: 'Cancel',
             confirmButtonColor: '#28a745', // Green color for confirm button
             cancelButtonColor: '#d33', // Red color for cancel button
@@ -50,55 +51,22 @@ const ChangePassword = ({ id: propId }) => {
         // Validate password match
         if (newPassword !== confirmPassword) {
             // Display error popup for password mismatch
-            Swal.fire({
-                title: 'Error!',
-                text: "New password and confirm password do not match.",
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#d33', // Red color for error button
-                background: '#ffe8e8', // Soft background color for error
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    title: 'my-title-class-error', // Custom title style class for error
-                    popup: 'my-popup-class-error', // Custom popup style class for error
-                    confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                }
-            });
+            toast.error("New password and confirm password do not match.");
             return; // Exit if passwords do not match
         }
     
+        console.log("Changing password for user ID:", userId);
         try {
-            const response = await axios.post(`http://localhost/Backend/api/changePassword.php?id=${userId}`, {
+            const response = await axios.post(`http://localhost/Backend/api/changePassword.php`, {
                 id: userId,
                 old_password: oldPassword,
                 new_password: newPassword,
-            });
-    
+            }, { withCredentials: true });
+            
+            console.log("API Response:", response.data);
+
             // Display success popup after password change
-            Swal.fire({
-                title: 'Success!',
-                text: response.data.message || "Password changed successfully!",
-                icon: 'success',
-                confirmButtonText: '<i class="fa fa-thumbs-up"></i> Great!',
-                confirmButtonColor: '#28a745', // Green color for the button
-                background: '#f0f9ff', // Soft background color
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://i.gifer.com/ZZ5H.gif") // Background effect with gif
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    title: 'my-title-class', // Custom title style class
-                    popup: 'my-popup-class', // Custom popup style class
-                    confirmButton: 'my-confirm-button-class', // Custom button style class
-                }
-            });
+            toast.success(response.data.message || "Password changed successfully!");
     
             // Optionally clear form fields or perform other actions here
             setOldPassword('');
@@ -106,25 +74,7 @@ const ChangePassword = ({ id: propId }) => {
             setConfirmPassword('');
         } catch (error) {
             // Display error popup for failed password change
-            Swal.fire({
-                title: 'Oops!',
-                text: `Error: ${error.response?.data?.error || error.message}`,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#d33', // Red color for error button
-                background: '#ffe8e8', // Soft background color for error
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://i.gifer.com/8ET3.gif") // Background effect with gif for error
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    title: 'my-title-class-error', // Custom title style class for error
-                    popup: 'my-popup-class-error', // Custom popup style class for error
-                    confirmButton: 'my-confirm-button-class-error', // Custom button style class for error
-                }
-            });
+            toast.error(`Error: ${error.response?.data?.error || error.message}`);
         }
     };
     

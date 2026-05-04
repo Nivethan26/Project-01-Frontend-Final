@@ -1,5 +1,6 @@
+import { toast } from 'react-toastify';
 import React, { useState, useEffect } from "react";
-import Swal from "../../../utils/modernAlert";
+
 import { useNavigate } from "react-router-dom";
 import "./Calendar.css";
 
@@ -15,38 +16,28 @@ const Calendar = () => {
   }, [currentDate]);
 
 
-const fetchAvailableSlots = async () => {
+  const fetchAvailableSlots = async () => {
     try {
-        const response = await fetch(
-            `http://localhost/Backend/api1.php?action=get_calendar&month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`
-        );
-        
-        const data = await response.json();
-        console.log("Available Slots Data:", data);
-        
-        if (data.availableSlots) {
-            setAvailableSlots(data.availableSlots);
-        } else {
-            // Show error popup if available slots data is not in expected format
-            await Swal.fire({
-                title: 'Error',
-                text: 'No available slots found or data format is incorrect.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-            });
-            setAvailableSlots({}); // Clear slots in case of unexpected format
-        }
+      const response = await fetch(
+        `http://localhost/Backend/api3.php?action=get_calendar&month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`
+      );
+
+      const data = await response.json();
+      console.log("Available Slots Data:", data);
+
+      if (data.availableSlots) {
+        setAvailableSlots(data.availableSlots);
+      } else {
+        // Show error popup if available slots data is not in expected format
+        await ( toast.warning('No available slots found or data format is incorrect.'), new Promise(res => setTimeout(res, 2000)) );
+        setAvailableSlots({}); // Clear slots in case of unexpected format
+      }
     } catch (error) {
-        console.error("Error fetching available slots:", error);
-        // Show error popup for fetch failure
-        await Swal.fire({
-            title: 'Error',
-            text: 'Failed to fetch available slots. Please check your connection or try again later.',
-            icon: 'error',
-            confirmButtonText: 'OK',
-        });
+      console.error("Error fetching available slots:", error);
+      // Show error popup for fetch failure
+      await ( toast.error('Failed to fetch available slots. Please check your connection or try again later.'), new Promise(res => setTimeout(res, 2000)) );
     }
-};
+  };
 
 
   const generateCalendar = () => {

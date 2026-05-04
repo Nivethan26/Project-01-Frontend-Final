@@ -81,7 +81,7 @@ export default function CourseDetails() {
                 </ul>
 
                 <div className="sd-actions">
-                  <button className="sd-btn-primary" onClick={() => navigate('/bookingStation01')}>
+                  <button className="sd-btn-primary" onClick={() => navigate('/booking-station/1')}>
                     Book Service
                   </button>
                   <button className="sd-btn-secondary" onClick={() => navigate('/ContactUs')}>

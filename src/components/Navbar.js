@@ -60,7 +60,7 @@ const Navbar = () => {
             </ul>
           </div>
         </div>
-        <Link to="/LoginRegister" className="login-button">Login</Link>
+        <Link to="/login" className="login-button">Login</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
           <span className="navbar-toggler-icon"></span>
         </button>

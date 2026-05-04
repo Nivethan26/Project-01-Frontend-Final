@@ -1,11 +1,13 @@
+import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
-import Swal from "../../utils/modernAlert";
+
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, Avatar, TextField, Button, CircularProgress } from '@mui/material';
 
 const Profile = () => {
-    const { id } = useParams(); // Get employee ID from URL parameters
+    const { id: paramId } = useParams(); // Get employee ID from URL parameters
+    const id = paramId || localStorage.getItem("userId");
     const navigate = useNavigate(); // For navigating between pages
 
     const [userDetails, setUserDetails] = useState(null); // Store employee data
@@ -23,56 +25,47 @@ const Profile = () => {
         const fetchEmployeeDetails = async () => {
             setLoading(true); // Start loading when fetching begins
             try {
-                const response = await axios.get(`http://localhost/Backend/api/employeeDetails.php?id=${id}`);
+                console.log("Fetching details for user ID:", id);
+                const response = await axios.get(`http://localhost/Backend/api/getUserDetails.php?id=${id}`, { withCredentials: true });
                 const data = response.data;
-    
-                if (response.status === 200 && data && data.id) {
-                    setUserDetails(data);
+                console.log("API Response:", data);
+
+                if (response.data && response.data.success) {
+                    const userData = response.data.data;
+                    setUserDetails(userData);
                     setFormData({
-                        username: data.username || '',
-                        name: data.name || '',
-                        email: data.email || '',
-                        phone: data.phone || '',
-                        address: data.address || '',
+                        username: userData.username || '',
+                        name: userData.name || '',
+                        email: userData.email || '',
+                        phone: userData.phone || '',
+                        address: userData.address || '',
                     });
                 } else {
-                    console.error('Employee not found:', data);
-                    await Swal.fire({
-                        title: 'Employee Not Found',
-                        text: 'The employee you are trying to fetch was not found.',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                    });
-    
-                    // Navigate back if employee is not found
-                    navigate('/welcome/:id');
+                    console.error('User not found:', data);
+                    await ( toast.error('The user you are trying to fetch was not found.'), new Promise(res => setTimeout(res, 2000)) );
+
+                    // Navigate back if user is not found
+                    navigate(`/welcome/${id}`);
                 }
             } catch (error) {
-                console.error('Error fetching employee details:', error.response ? error.response.data : error.message);
-                await Swal.fire({
-                    title: 'Error',
-                    text: 'Failed to load employee details. Please check your connection or try again later.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                });
-    
-                // Navigate to the employee list page
-                navigate('/employ');
+                console.error('Error fetching user details:', error.response ? error.response.data : error.message);
+                if (error.response && error.response.status === 401) {
+                    await ( toast.error('Your session has expired. Please login again.'), new Promise(res => setTimeout(res, 2000)) );
+                    navigate('/login');
+                } else {
+                    await ( toast.error('Failed to load details. Please check your connection or try again later.'), new Promise(res => setTimeout(res, 2000)) );
+                    navigate(`/welcome/${id}`);
+                }
             } finally {
                 setLoading(false); // Stop loading after fetch completes
             }
         };
-    
+
         if (id) { // Ensure id is defined before fetching
             fetchEmployeeDetails();
         } else {
-            Swal.fire({
-                title: 'Invalid ID',
-                text: 'Invalid employee ID. Please provide a valid ID.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-            }).then(() => {
-                navigate('/employ');
+            ( toast.warning('Invalid user ID. Please provide a valid ID.'), new Promise(res => setTimeout(res, 2000)) ).then(() => {
+                navigate(-1);
             });
         }
     }, [id, navigate]);
@@ -106,12 +99,7 @@ const Profile = () => {
     
         // If there is an error, show a SweetAlert2 popup
         if (error) {
-            await Swal.fire({
-                title: 'Validation Error',
-                text: error,
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            await ( toast.error(error), new Promise(res => setTimeout(res, 2000)) );
         }
     
         // Update the errors state

@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./ListCourse.css";
@@ -54,24 +55,12 @@ export default function ListCourse() {
           setCourses(courses.filter((course) => course.id !== id));
   
           // Success popup
-          Swal.fire({
-            title: "Deleted!",
-            text: "The course has been deleted.",
-            icon: "success",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#28a745",  // Green color for success
-          });
+          toast.success("The course has been deleted.");
         } catch (error) {
           console.error("Error deleting course:", error);
   
           // Error popup if something goes wrong
-          Swal.fire({
-            title: "Error!",
-            text: "There was an error deleting the course.",
-            icon: "error",
-            confirmButtonText: "Retry",
-            confirmButtonColor: "#e74c3c",  // Red color for error
-          });
+          toast.error("There was an error deleting the course.");
         }
       }
     });
@@ -95,16 +84,10 @@ export default function ListCourse() {
         // Update courses by filtering out the deleted ones
         setCourses(courses.filter(course => !selectedRows.includes(course.id)));
         setSelectedRows([]); // Clear selection after deletion
-        await Swal.fire({
-          icon: "success",
-          title: "Selected courses deleted.",
-        });
+        await ( toast.success("Selected courses deleted."), new Promise(res => setTimeout(res, 2000)) );
       } catch (error) {
         console.error("Error deleting selected courses:", error);
-        await Swal.fire({
-          icon: "error",
-          title: "Error deleting selected courses.",
-        });
+        await ( toast.error("Error deleting selected courses."), new Promise(res => setTimeout(res, 2000)) );
       }
     }
   };

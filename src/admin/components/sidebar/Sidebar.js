@@ -37,25 +37,31 @@ export default function Sidebar() {
         <div className="sidebarMenu">
           <h3 className="sidebarTitle">Bookings</h3>
           <ul className="sidebarList">
-            <Link to="/admin/bookingList01" className="link" onClick={() => handleItemClick("Station01")}>
+            <Link to="/admin/bookings" className="link" onClick={() => handleItemClick("AllBookings")}>
+              <li className={`sidebarListItem ${activeItem === "AllBookings" ? "active" : ""}`}>
+                <BookOnline className="sidebarIcon" />
+                All Bookings
+              </li>
+            </Link>
+            <Link to="/admin/bookings?station=1" className="link" onClick={() => handleItemClick("Station01")}>
               <li className={`sidebarListItem ${activeItem === "Station01" ? "active" : ""}`}>
                 <BookOnline className="sidebarIcon" />
                 Station-01
               </li>
             </Link>
-            <Link to="/admin/bookingList02" className="link" onClick={() => handleItemClick("Station02")}>
+            <Link to="/admin/bookings?station=2" className="link" onClick={() => handleItemClick("Station02")}>
               <li className={`sidebarListItem ${activeItem === "Station02" ? "active" : ""}`}>
                 <BookOnline className="sidebarIcon" />
                 Station-02
               </li>
             </Link>
-            <Link to="/admin/bookingList03" className="link" onClick={() => handleItemClick("Station03")}>
+            <Link to="/admin/bookings?station=3" className="link" onClick={() => handleItemClick("Station03")}>
               <li className={`sidebarListItem ${activeItem === "Station03" ? "active" : ""}`}>
                 <BookOnline className="sidebarIcon" />
                 Station-03
               </li>
             </Link>
-            <Link to="/admin/bookingList04" className="link" onClick={() => handleItemClick("Station04")}>
+            <Link to="/admin/bookings?station=4" className="link" onClick={() => handleItemClick("Station04")}>
               <li className={`sidebarListItem ${activeItem === "Station04" ? "active" : ""}`}>
                 <BookOnline className="sidebarIcon" />
                 Station-04

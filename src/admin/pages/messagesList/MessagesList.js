@@ -8,25 +8,39 @@ const MessagesList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "http://localhost/Backend/getMessages.php"
-        );
+        const response = await fetch("/Backend/getMessages.php", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+        const rawText = await response.text();
+
+        let result = null;
+        if (rawText) {
+          try {
+            result = JSON.parse(rawText);
+          } catch (_) {
+            result = null;
+          }
+        }
 
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          const msg =
+            result?.error ||
+            result?.message ||
+            `Request failed (HTTP ${response.status}).`;
+          throw new Error(msg);
         }
 
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const result = await response.json();
-          if (result.error) {
-            throw new Error(result.error);
-          }
-          setData(result);
-        } else {
-          const text = await response.text();
-          throw new Error(`Response is not JSON: ${text}`);
+        if (!contentType.includes("application/json") || !Array.isArray(result)) {
+          throw new Error("Unexpected response from server.");
         }
+
+        setData(result);
       } catch (error) {
         setError(error.message);
         console.error("Error fetching messages:", error);

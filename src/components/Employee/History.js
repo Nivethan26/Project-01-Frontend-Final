@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom'; // Import useParams
 import axios from 'axios';
 
 const History = () => {
-    const { id } = useParams(); // Get the id parameter from the URL
+    const { id: paramId } = useParams(); // Get the id parameter from the URL
+    const id = paramId || localStorage.getItem("userId");
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,9 +14,11 @@ const History = () => {
     }, [id]); // Add id as a dependency to refetch when it changes
 
     const fetchLeaveApplications = async () => {
+        console.log("Fetching leave history for user ID:", id);
         try {
             // Use template literals to insert the id parameter correctly
-            const response = await axios.get(`http://localhost/Backend/api/getLeaveApplicationsem.php?employee_id=${id}`);
+            const response = await axios.get(`http://localhost/Backend/api/getLeaveApplicationsem.php?employee_id=${id}`, { withCredentials: true });
+            console.log("API Response:", response.data);
             const today = new Date();
 
             const formattedApplications = response.data.applications.map(application => {

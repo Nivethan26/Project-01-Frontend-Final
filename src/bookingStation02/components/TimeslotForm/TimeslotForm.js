@@ -1,9 +1,10 @@
+import { toast } from 'react-toastify';
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import "./TimeslotForm.css";
 import PaymentForm from "../PaymentForm/PaymentForm"; // Import PaymentForm component
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import Swal from "../../../utils/modernAlert"; // Import SweetAlert2 for popups
+ // Import SweetAlert2 for popups
 
 import PersonIcon from '@mui/icons-material/Person';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
@@ -11,13 +12,13 @@ import CloseIcon from '@mui/icons-material/Close';
 
 Modal.setAppElement("#root"); // Specify your app root element
 
-const TimeslotForm = ({ isOpen, onRequestClose, timeslot, date }) => {
+const TimeslotForm = ({ isOpen, onRequestClose, onBookingSuccess, timeslot, date }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [vehicleModel, setVehicleModel] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
-  
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false); // State to show PaymentForm
@@ -58,7 +59,7 @@ const TimeslotForm = ({ isOpen, onRequestClose, timeslot, date }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-  
+
     setIsSubmitting(true);
     const bookingData = {
       name,
@@ -69,22 +70,13 @@ const TimeslotForm = ({ isOpen, onRequestClose, timeslot, date }) => {
       timeslot,
       date,
     };
-  
+
     // Show loading animation popup
-    Swal.fire({
-      title: "Processing...",
-      text: "Please wait while we confirm your booking.",
-      icon: "info",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  
+    toast.info("Please wait while we confirm your booking.");
+
     try {
       const response = await fetch(
-        "http://localhost/Backend/api1.php?action=add_booking",
+        "http://localhost/Backend/api2.php?action=add_booking",
         {
           method: "POST",
           headers: {
@@ -95,43 +87,29 @@ const TimeslotForm = ({ isOpen, onRequestClose, timeslot, date }) => {
       );
       const data = await response.json();
       setIsSubmitting(false);
-      
-      if (data.status === "success") {
+
+      if (response.ok && data.status === "success") {
         Swal.close(); // Close the loading animation
-        Swal.fire({
-          title: "Booking Proceeded!",
-          text: "Your booking has been confirmed successfully.",
-          icon: "success",
-          confirmButtonText: "OK",
-        }).then(() => {
-          onRequestClose(); // Close the booking form
-          // Optionally, you can show the payment form here
+        ( toast.success("Your booking has been confirmed successfully."), new Promise(res => setTimeout(res, 2000)) ).then(() => {
+          if (typeof onBookingSuccess === "function") {
+            onBookingSuccess();
+          } else {
+            onRequestClose();
+          }
         });
       } else {
         Swal.close(); // Close the loading animation
-        Swal.fire({
-          title: "Booking Failed",
-          text: "There was an issue with your booking. Please try again.",
-          icon: "error",
-          confirmButtonText: "Retry",
-        });
+        toast.error(data?.message || "There was an issue with your booking. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting booking:", error);
       setIsSubmitting(false);
       Swal.close(); // Close the loading animation
-      Swal.fire({
-        title: "Booking Proceeded!",
-        text: "Your booking has been confirmed successfully.",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        setShowPaymentForm(true); // Show the payment form or handle the error
-      });
+      toast.error("Unable to save booking. Please check your connection and try again.");
     }
-    
+
   };
-  
+
 
   const handlePaymentClose = () => {
     setShowPaymentForm(false); // Hide payment form after payment
@@ -160,22 +138,22 @@ const TimeslotForm = ({ isOpen, onRequestClose, timeslot, date }) => {
 
         <div className="booking-summary">
           <div className="booking-summary-grid">
-             <div className="summary-item">
-                <span className="summary-label">Date</span>
-                <span className="summary-value">{getFormattedDate(date)}</span>
-             </div>
-             <div className="summary-item">
-                <span className="summary-label">Time Slot</span>
-                <span className="summary-value">{timeslot}</span>
-             </div>
-             <div className="summary-item">
-                <span className="summary-label">Station</span>
-                <span className="summary-value">AutoCare Service Station</span>
-             </div>
-             <div className="summary-item">
-                <span className="summary-label">Service Type</span>
-                <span className="summary-value">General Booking</span>
-             </div>
+            <div className="summary-item">
+              <span className="summary-label">Date</span>
+              <span className="summary-value">{getFormattedDate(date)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Time Slot</span>
+              <span className="summary-value">{timeslot}</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Station</span>
+              <span className="summary-value">AutoCare Service Station</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Service Type</span>
+              <span className="summary-value">General Booking</span>
+            </div>
           </div>
         </div>
 

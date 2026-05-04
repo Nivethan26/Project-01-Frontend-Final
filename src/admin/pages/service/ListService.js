@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -56,24 +57,12 @@ export default function ListService() {
           setServices(services.filter((service) => service.id !== id));
           
           // Success popup
-          Swal.fire({
-            title: "Deleted!",
-            text: "The service has been deleted.",
-            icon: "success",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#28a745",  // Green color for success
-          });
+          toast.success("The service has been deleted.");
         } catch (error) {
           console.error("Error deleting service:", error);
           
           // Error popup if something goes wrong
-          Swal.fire({
-            title: "Error!",
-            text: "There was an error deleting the service.",
-            icon: "error",
-            confirmButtonText: "Retry",
-            confirmButtonColor: "#e74c3c",  // Red color for error
-          });
+          toast.error("There was an error deleting the service.");
         }
       }
     });

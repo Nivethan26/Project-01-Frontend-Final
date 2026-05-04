@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import React, { useState } from "react";
 import Swal from "../../../utils/modernAlert"; // Import SweetAlert2
 import "font-awesome/css/font-awesome.min.css";
@@ -106,22 +107,14 @@ const PaymentForm = ({ closePayment }) => {
     setTimeout(() => {
       setIsProcessing(false);
       // Trigger SweetAlert2 popup
-      Swal.fire({
-        title: "Booking Confirmed",
-        text: "Your payment has been successfully processed.",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
+      ( toast.success("Your payment has been successfully processed."), new Promise(res => setTimeout(res, 2000)) ).then(() => {
         // Get the user's role from sessionStorage
         const userRole = sessionStorage.getItem("user-role");
 
         // Check if the role exists
         if (!userRole) {
           console.error("User role not found in sessionStorage");
-          Swal.fire({
-            icon: "error",
-            title: "User role is not defined in session storage.",
-          });
+          toast.error("User role is not defined in session storage.");
           return; // Prevent further execution if role is not found
         }
 
@@ -154,13 +147,7 @@ const PaymentForm = ({ closePayment }) => {
       if (result.isConfirmed) {
         // If user clicks 'Yes'
         closePayment(false);
-        Swal.fire({
-          title: "Cancelled!",
-          text: "Your payment has been cancelled.",
-          icon: "success",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#2aac15",  // Green for success
-        });
+        toast.success("Your payment has been cancelled.");
       }
     });
   };

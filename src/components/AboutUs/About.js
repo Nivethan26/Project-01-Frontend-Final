@@ -130,7 +130,7 @@ const About = () => {
         <div className="cta-section">
           <h2>Ready for an Upgrade?</h2>
           <p>Experience the ultimate automotive service standard and empower your journey.</p>
-          <button className="cta-btn" onClick={() => navigate('/bookingStation01')}>
+          <button className="cta-btn" onClick={() => navigate('/booking-station/1')}>
             Book a Service Now
           </button>
         </div>

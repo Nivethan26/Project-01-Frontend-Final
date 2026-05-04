@@ -22,7 +22,7 @@ const Timeslot = () => {
   const fetchTimeslotStatus = async () => {
     try {
       const response = await fetch(
-        `http://localhost/Backend/api1.php?action=get_timeslot_status&date=${date}`
+        `http://localhost/Backend/api.php?action=get_timeslot_status&date=${date}`
       );
       const data = await response.json();
       setTimeslotStatus(data);
@@ -39,6 +39,11 @@ const Timeslot = () => {
 
   const closeModal = () => {
     setModalIsOpen(false);
+  };
+
+  const handleBookingSuccess = () => {
+    closeModal();
+    fetchTimeslotStatus();
   };
 
   // Helper function to format the date
@@ -61,7 +66,7 @@ const Timeslot = () => {
       const startTimeStr = slotStr.split('-')[0].trim().toLowerCase();
       const match = startTimeStr.match(/(\d+)/);
       let hour = match ? parseInt(match[1], 10) : 0;
-      
+
       if (startTimeStr.includes('pm') && hour < 12) hour += 12;
       if (startTimeStr.includes('am') && hour === 12) hour = 0;
 
@@ -81,7 +86,7 @@ const Timeslot = () => {
 
   const renderSlotGroup = (title, icon, slots) => {
     if (slots.length === 0) return null;
-    
+
     return (
       <div className="timeslot-section" key={title}>
         <h3>{icon} {title}</h3>
@@ -89,9 +94,8 @@ const Timeslot = () => {
           {slots.map((slot) => (
             <button
               key={slot}
-              className={`timeslot-button ${
-                timeslotStatus[slot] === "booked" ? "booked" : "available"
-              }`}
+              className={`timeslot-button ${timeslotStatus[slot] === "booked" ? "booked" : "available"
+                }`}
               onClick={() =>
                 timeslotStatus[slot] === "available" && openModal(slot)
               }
@@ -114,8 +118,8 @@ const Timeslot = () => {
           </button>
           <h2>Select a Time Slot</h2>
           <div className="formatted-date">
-             <CalendarMonthIcon className="date-icon" fontSize="small" />
-             {getFormattedDate(date)}
+            <CalendarMonthIcon className="date-icon" fontSize="small" />
+            {getFormattedDate(date)}
           </div>
         </header>
 
@@ -137,6 +141,7 @@ const Timeslot = () => {
       <TimeslotForm
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
+        onBookingSuccess={handleBookingSuccess}
         timeslot={selectedTimeslot}
         date={date}
       />

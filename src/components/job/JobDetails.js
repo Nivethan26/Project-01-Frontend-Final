@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from "../../utils/modernAlert";
 import {
   WorkOutline,
   AttachMoney,
   Event,
   BusinessCenter,
-  CloudUpload
+  CloudUpload,
+  CheckCircle
 } from '@mui/icons-material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,6 +16,7 @@ import './JobDetailsUI.css';
 
 export default function JobDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +31,9 @@ export default function JobDetails() {
   const [formMessage, setFormMessage] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -43,6 +49,29 @@ export default function JobDetails() {
 
     fetchJobDetails();
   }, [id]);
+
+  // Check if already applied when modal opens
+  useEffect(() => {
+    if (!showModal || !job || !formData.email) return;
+
+    const checkIfApplied = async () => {
+      setCheckingApplication(true);
+      try {
+        const response = await fetch(
+          `/Backend/checkJobApplication.php?email=${encodeURIComponent(formData.email)}&jobId=${encodeURIComponent(job.jobId)}`
+        );
+        const data = await response.json();
+        if (data.alreadyApplied) {
+          setAlreadyApplied(true);
+        }
+      } catch (err) {
+        console.error('Check failed:', err);
+      } finally {
+        setCheckingApplication(false);
+      }
+    };
+    checkIfApplied();
+  }, [showModal, job, formData.email]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -131,11 +160,10 @@ export default function JobDetails() {
         }
       );
 
-      if (response.data.success || response.data.status == 1) {
-        toast.success('Application submitted successfully!');
-        setShowModal(false);
-        setFormMessage('');
-        setFormData({ ...formData, name: '', phone: '', email: '', cv: null }); // clear format
+      if (response.data.success) {
+        setSuccess(true);
+      } else if (response.data.message && response.data.message.includes('already applied')) {
+        setAlreadyApplied(true);
       } else {
         toast.error(response.data.message || 'Something went wrong, please try again.');
       }
@@ -144,6 +172,15 @@ export default function JobDetails() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSuccess(false);
+    setAlreadyApplied(false);
+    setCheckingApplication(false);
+    setFormErrors({});
+    setFormMessage('');
   };
 
   if (loading) return <p>Loading job details...</p>;
@@ -259,100 +296,213 @@ export default function JobDetails() {
               </div>
             </div>
 
-            <button className="btn-premium-apply-job" onClick={() => setShowModal(true)}>
+            <button className="btn-premium-apply-job" onClick={() => {
+              const sessionEmail = sessionStorage.getItem('email');
+              if (!sessionEmail) {
+                sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+                Swal.fire({
+                  title: 'Login Required',
+                  text: 'You need to login before applying for a job.',
+                  icon: 'warning',
+                  confirmButtonText: 'Go to Login',
+                  confirmButtonColor: '#da1727',
+                  showCancelButton: true,
+                  cancelButtonText: 'Cancel',
+                  cancelButtonColor: '#6c757d',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate('/User/login');
+                  }
+                });
+                return;
+              }
+              const sessionName = sessionStorage.getItem('username') || '';
+              setFormData({
+                jobId: id,
+                name: sessionName,
+                email: sessionEmail,
+                phone: '',
+                cv: null,
+              });
+              setFormErrors({});
+              setSuccess(false);
+              setAlreadyApplied(false);
+              setShowModal(true);
+            }}>
               Apply Now
             </button>
           </div>
         </div>
       </div>
 
-      {/* Existing Modal logic below */}
+      {/* Modal */}
       {showModal && (
-        <div className="job-modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="job-modal-overlay" onClick={handleCloseModal}>
           <div className="job-modal-content-modern" onClick={(e) => e.stopPropagation()}>
-            <button className="job-modal-close" onClick={() => setShowModal(false)}>&times;</button>
-            <h3 className="job-modal-title">Apply for {job.jobTitle}</h3>
+            <button className="job-modal-close" onClick={handleCloseModal}>&times;</button>
 
-            <form onSubmit={handleApply} noValidate>
-              <div className="job-form-group">
-                <label>Job ID</label>
-                <input
-                  type="text"
-                  name="jobId"
-                  value={job.jobId}
-                  readOnly
-                  className="job-input-modern job-read-only"
-                />
-              </div>
-
-              <div className="job-form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="job-input-modern"
-                  placeholder="Enter your full name"
-                />
-                {formErrors.name && <span className="job-error-text">{formErrors.name}</span>}
-              </div>
-
-              <div className="job-form-group">
-                <label>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="job-input-modern"
-                  placeholder="name@example.com"
-                />
-                {formErrors.email && <span className="job-error-text">{formErrors.email}</span>}
-              </div>
-
-              <div className="job-form-group">
-                <label>Phone Number</label>
-                <div className="job-phone-wrapper">
-                  <span className="job-phone-prefix">+94</span>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="job-input-modern job-phone-input"
-                    placeholder="71 234 5678"
-                  />
+            {/* Loading state - checking application */}
+            {checkingApplication ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary mb-3" role="status" style={{ width: '3rem', height: '3rem' }}>
+                  <span className="visually-hidden">Loading...</span>
                 </div>
-                {formErrors.phone && <span className="job-error-text">{formErrors.phone}</span>}
+                <h4 style={{ color: '#4b5563', fontWeight: 500 }}>Checking application status...</h4>
               </div>
 
-              <div className="job-form-group">
-                <label>Upload CV</label>
-                <label className="job-file-upload-zone">
-                  <CloudUpload className="job-upload-icon" />
-                  <span className="job-upload-text">
-                    {formData.cv ? formData.cv.name : "Click to select a PDF file"}
-                  </span>
-                  <input
-                    type="file"
-                    name="cv"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="job-file-hidden"
-                  />
-                </label>
-                {formErrors.cv && <span className="job-error-text">{formErrors.cv}</span>}
+            ) : success ? (
+              /* Success state */
+              <div className="text-center py-4">
+                <CheckCircle sx={{ fontSize: 64, color: '#10b981', marginBottom: '16px' }} />
+                <h3 className="mb-2" style={{ fontWeight: 600, color: '#111827' }}>Application Submitted!</h3>
+                <p style={{ color: '#6b7280', marginBottom: '24px' }}>We will review your application and get back to you.</p>
+                
+                <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px', textAlign: 'left', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Job ID:</span>
+                    <span style={{ fontWeight: 500 }}>{job.jobId}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Position:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{job.jobTitle}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Name:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{formData.name}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Email:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{formData.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Status:</span>
+                    <span style={{ fontWeight: 600, color: '#10b981' }}>Submitted ✓</span>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                  <button onClick={() => navigate('/User/applications')} style={{ backgroundColor: '#f3f4f6', color: '#374151', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    View My Applications
+                  </button>
+                  <button onClick={handleCloseModal} style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    Close
+                  </button>
+                </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="btn-job-submit" 
-                disabled={isSubmitting || !formData.name || !formData.email || formData.phone.length !== 9 || !formData.cv}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Application'}
-              </button>
-            </form>
+            ) : alreadyApplied ? (
+              /* Already applied state */
+              <div className="text-center py-4">
+                <CheckCircle sx={{ fontSize: 64, color: '#10b981', marginBottom: '16px' }} />
+                <h3 className="mb-2" style={{ fontWeight: 700, color: '#111827', fontSize: '24px' }}>Already Applied!</h3>
+                <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '15px' }}>
+                  You have already submitted an application for this job.
+                </p>
+                
+                <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px', textAlign: 'left', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Position:</span>
+                    <span style={{ fontWeight: 500, textAlign: 'right' }}>{job.jobTitle}</span>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button onClick={() => navigate('/User/applications')} style={{ width: '100%', backgroundColor: '#1e3a8a', color: 'white', border: 'none', padding: '12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    View My Applications
+                  </button>
+                  <button onClick={handleCloseModal} style={{ width: '100%', backgroundColor: 'transparent', color: '#4b5563', border: '1px solid #d1d5db', padding: '12px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    Close
+                  </button>
+                </div>
+              </div>
+
+            ) : (
+              /* Application form */
+              <>
+                <h3 className="job-modal-title">Apply for {job.jobTitle}</h3>
+
+                <form onSubmit={handleApply} noValidate>
+                  <div className="job-form-group">
+                    <label>Job ID</label>
+                    <input
+                      type="text"
+                      name="jobId"
+                      value={job.jobId}
+                      readOnly
+                      className="job-input-modern job-read-only"
+                    />
+                  </div>
+
+                  <div className="job-form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="job-input-modern"
+                      placeholder="Enter your full name"
+                    />
+                    {formErrors.name && <span className="job-error-text">{formErrors.name}</span>}
+                  </div>
+
+                  <div className="job-form-group">
+                    <label>Email Address</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      readOnly
+                      className="job-input-modern job-read-only"
+                      placeholder="name@example.com"
+                    />
+                    {formErrors.email && <span className="job-error-text">{formErrors.email}</span>}
+                  </div>
+
+                  <div className="job-form-group">
+                    <label>Phone Number</label>
+                    <div className="job-phone-wrapper">
+                      <span className="job-phone-prefix">+94</span>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="job-input-modern job-phone-input"
+                        placeholder="71 234 5678"
+                      />
+                    </div>
+                    {formErrors.phone && <span className="job-error-text">{formErrors.phone}</span>}
+                  </div>
+
+                  <div className="job-form-group">
+                    <label>Upload CV</label>
+                    <label className="job-file-upload-zone">
+                      <CloudUpload className="job-upload-icon" />
+                      <span className="job-upload-text">
+                        {formData.cv ? formData.cv.name : "Click to select a PDF file"}
+                      </span>
+                      <input
+                        type="file"
+                        name="cv"
+                        accept=".pdf"
+                        onChange={handleFileChange}
+                        className="job-file-hidden"
+                      />
+                    </label>
+                    {formErrors.cv && <span className="job-error-text">{formErrors.cv}</span>}
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn-job-submit" 
+                    disabled={isSubmitting || !formData.name || !formData.email || formData.phone.length !== 9 || !formData.cv}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

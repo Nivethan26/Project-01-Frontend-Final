@@ -1,9 +1,12 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import UserSidebar from "../User/components/usersidebar/UserSidebar";
-import UserTopbar from "../User/components/usertopbar/UserTopbar";
 import Station from "../User/pages/station/Station";
 import ReservationInfo from "../User/pages/reservationInfo/ReservationInfo";
+import Messages from "../User/pages/messages/Messages";
+import Profile from "../User/pages/profile/Profile";
+import MyApplications from "../User/pages/MyApplications/MyApplications";
+import UserBookings from "../User/pages/bookings/UserBookings";
 
 import "./User.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,16 +14,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const User = () => {
   return (
     <>
-      <UserTopbar />
       <div className="user_container">
         <UserSidebar />
         <div className="user-content">
           <Routes>
-            <Route path="/" element={<Station />} /> {/* Default route */}
-            <Route path="/ReservationInfo" element={<ReservationInfo />} />
-            {/* <Route path="/employees" element={<EmployeesList />} />
-            <Route path="/employee/:employeeId" element={<Employee />} />
-            <Route path="/newEmployee" element={<NewEmployee />} /> */}
+            <Route path="/" element={<Station />} /> {/* Default route -> Dashboard */}
+            <Route path="/refund" element={<ReservationInfo />} /> {/* Refund Policy */}
+            <Route path="/bookings" element={<UserBookings />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/applications" element={<MyApplications />} />
           </Routes>
         </div>
       </div>

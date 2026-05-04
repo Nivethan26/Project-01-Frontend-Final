@@ -1,7 +1,8 @@
+import { toast } from 'react-toastify';
 import './Ser.css';
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import Swal from "../utils/modernAlert";
+
 import axios from 'axios';
 
 export default function Courses() {
@@ -15,33 +16,27 @@ export default function Courses() {
 
     const getCourses = async () => {
         setLoading(true); // Start loading when fetching begins
+        console.log('[Services] useEffect triggered, fetching services...');
     
         try {
+            console.log('[Services] API call start: /Backend/api/service.php');
             const response = await axios.get('http://localhost/Backend/api/service.php/');
             console.log('API Response:', response.data);
+            console.log('[Services] API call success');
             
             if (Array.isArray(response.data)) {
                 setCourses(response.data);
             } else {
                 console.error('Unexpected response data format:', response.data);
                 // Show error popup for unexpected data format
-                await Swal.fire({
-                    title: 'Error',
-                    text: 'Unexpected response data format received.',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                });
+                await ( toast.error('Unexpected response data format received.'), new Promise(res => setTimeout(res, 2000)) );
                 setCourses([]);
             }
         } catch (error) {
             console.error('Error fetching service:', error);
+            console.error('[Services] API call failed', error?.response?.status, error?.message);
             // Show error popup for API fetch failure
-            await Swal.fire({
-                title: 'Error',
-                text: 'Failed to fetch services. Please check your connection or try again later.',
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            await ( toast.error('Failed to fetch services. Please check your connection or try again later.'), new Promise(res => setTimeout(res, 2000)) );
             setError(error);
         } finally {
             setLoading(false); // Stop loading after fetch completes
