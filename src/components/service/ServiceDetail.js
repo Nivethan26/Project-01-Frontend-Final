@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Container, Grid, Typography, Paper } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -14,6 +15,29 @@ export default function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleBookClick = () => {
+    const email = sessionStorage.getItem('email');
+    if (!email) {
+      toast.info('Please log in to book a service.');
+      navigate('/login', { state: { from: `/services/${id}` } });
+      return;
+    }
+
+    navigate('/book-service', {
+      state: {
+        service: course,
+        category: course.category ? {
+          key: course.category,
+          label: course.category === 'washing' ? 'Washing & Detailing'
+            : course.category === 'mechanical' ? 'Mechanical Repairs'
+            : course.category === 'bodywork' ? 'Body Work & Painting'
+            : 'Periodic Maintenance'
+        } : null,
+        skipToStep: course.category ? (course.category === 'washing' ? 3 : 3) : 1
+      }
+    });
+  };
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -81,7 +105,7 @@ export default function CourseDetails() {
                 </ul>
 
                 <div className="sd-actions">
-                  <button className="sd-btn-primary" onClick={() => navigate('/booking-station/1')}>
+                  <button className="sd-btn-primary" onClick={handleBookClick}>
                     Book Service
                   </button>
                   <button className="sd-btn-secondary" onClick={() => navigate('/ContactUs')}>

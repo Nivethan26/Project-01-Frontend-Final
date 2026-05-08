@@ -12,9 +12,14 @@ const EmployeeBookingTimeslot = () => {
   const [timeslotStatus, setTimeslotStatus] = useState({});
   const [selectedTimeslot, setSelectedTimeslot] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [modalStep, setModalStep] = useState('form');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoveredSlot, setHoveredSlot] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
+
+  const stationPrices = { 1: 800, 2: 800, 3: 1500, 4: 3500 };
+  const stationPrice = stationPrices[parseInt(stationId)] || 800;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -99,6 +104,8 @@ const EmployeeBookingTimeslot = () => {
     setShowModal(false);
     setSelectedTimeslot('');
     setFormErrors({});
+    setModalStep('form');
+    setPaymentMethod('');
   };
 
   const validateForm = useCallback((value) => {
@@ -138,22 +145,19 @@ const EmployeeBookingTimeslot = () => {
     setFormErrors(validateForm(nextFormData));
   };
 
-  const handleConfirmBooking = async (e) => {
+  const handleGoToPayment = (e) => {
     e.preventDefault();
-
     const errors = validateForm(formData);
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) {
       return toast.error('Please fix the booking form errors.');
     }
+    setModalStep('payment');
+  };
 
-    console.log("Booking started", {
-      ...formData,
-      date: date,
-      timeslot: selectedTimeslot
-    });
+  const handleConfirmBooking = async () => {
+    if (!paymentMethod) return toast.error('Please select a payment method.');
     setIsSubmitting(true);
-
     try {
       const payload = {
         ...formData,
@@ -162,45 +166,25 @@ const EmployeeBookingTimeslot = () => {
         phone: normalizePhone(formData.phone),
         vehicleModel: formData.vehicleModel.trim(),
         vehicleNumber: formData.vehicleNumber.trim(),
-        date: date,
-        timeslot: selectedTimeslot,
-        station_id: parseInt(stationId)
+        date, timeslot: selectedTimeslot,
+        station_id: parseInt(stationId),
+        paymentMethod: paymentMethod
       };
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
       const response = await fetch(`${apiUrl}&action=add_booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal
+        body: JSON.stringify(payload)
       });
-
-      clearTimeout(timeoutId);
-
       const result = await response.json();
-
       if (result.status === 'success' || result.success) {
-        console.log("Booking success");
-        toast.success('Booking completed!');
-
-        // Reset and close
         handleCloseModal();
-
-        // Navigate or refresh bookings
-        navigate('/employee/bookings');
+        await fetchTimeslots();
+        toast.success('Booking confirmed successfully!');
       } else {
-        console.error("Booking failed", result);
         toast.error(result.message || 'Failed to book.');
       }
     } catch (error) {
-      console.error("Booking failed", error);
-      if (error.name === 'AbortError') {
-        toast.error('Booking timeout. Server took too long.');
-      } else {
-        toast.error('Server connection failed');
-      }
+      toast.error('Server connection failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -328,10 +312,11 @@ const EmployeeBookingTimeslot = () => {
               &times;
             </button>
 
+            {modalStep === 'form' ? (
+            <div>
             <div style={{ marginBottom: '25px', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px', paddingRight: '20px' }}>
               <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#1e293b', fontWeight: '700', letterSpacing: '-0.02em' }}>Confirm Booking</h2>
             </div>
-
             <div style={{ marginBottom: '20px' }}>
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '25px' }}>
                 <h4 style={{ margin: '0 0 15px 0', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Booking Summary</h4>
@@ -342,8 +327,7 @@ const EmployeeBookingTimeslot = () => {
                   <div><p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>Time</p><p style={{ margin: '4px 0 0 0', color: '#db2424', fontWeight: '600' }}>{selectedTimeslot}</p></div>
                 </div>
               </div>
-
-              <form id="slotBookingForm" onSubmit={handleConfirmBooking}>
+              <form id="slotBookingForm" onSubmit={handleGoToPayment}>
                 <div style={{ display: 'grid', gap: '20px', marginBottom: '25px', opacity: isLoadingUser ? 0.6 : 1, pointerEvents: isLoadingUser ? 'none' : 'auto' }}>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem', fontWeight: '500', color: '#334155' }}>Full Name *</label>
@@ -375,15 +359,57 @@ const EmployeeBookingTimeslot = () => {
                     </div>
                   </div>
                 </div>
-
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
-                  <button type="button" onClick={handleCloseModal} style={{ padding: '12px 24px', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: 'transparent', color: '#64748b', border: '2px solid #cbd5e1' }}>Cancel</button>
-                  <button type="submit" disabled={isSubmitting || isLoadingUser} style={{ padding: '12px 24px', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: (isSubmitting || isLoadingUser) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', backgroundColor: '#2563eb', color: 'white', border: 'none', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' }}>
-                    {isSubmitting ? 'Processing...' : 'Submit Booking'}
-                  </button>
+                  <button type="button" onClick={handleCloseModal} style={{ padding: '12px 24px', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', backgroundColor: 'transparent', color: '#64748b', border: '2px solid #cbd5e1' }}>Cancel</button>
+                  <button type="submit" disabled={isLoadingUser} style={{ padding: '12px 24px', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: isLoadingUser ? 'not-allowed' : 'pointer', backgroundColor: '#2563eb', color: 'white', border: 'none', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' }}>Continue to Payment →</button>
                 </div>
               </form>
             </div>
+            </div>
+            ) : (
+            <div>
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#1e293b', fontWeight: '700' }}>Payment & Confirmation</h2>
+                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '0.9rem' }}>Choose your payment method and confirm booking</p>
+              </div>
+              {/* Payment Options */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                {[
+                  { key: 'cash', icon: '💵', label: 'Pay at Centre', desc: 'Cash payment on arrival' },
+                  { key: 'card', icon: '💳', label: 'Online Card Payment', desc: 'Pay securely via debit/credit card' },
+                ].map(opt => (
+                  <div key={opt.key} onClick={() => setPaymentMethod(opt.key)} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', border: `2px solid ${paymentMethod === opt.key ? '#2563eb' : '#e2e8f0'}`, borderRadius: '12px', cursor: 'pointer', background: paymentMethod === opt.key ? 'rgba(37,99,235,0.04)' : '#fff', transition: 'all 0.2s' }}>
+                    <span style={{ fontSize: '28px' }}>{opt.icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>{opt.label}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '2px' }}>{opt.desc}</div>
+                    </div>
+                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${paymentMethod === opt.key ? '#2563eb' : '#cbd5e1'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {paymentMethod === opt.key && <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#2563eb' }} />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Order Summary */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                <h4 style={{ margin: '0 0 14px', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Summary</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Station</span><span style={{ color: '#0f172a', fontWeight: 600 }}>Station 0{stationId}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Date & Time</span><span style={{ color: '#0f172a', fontWeight: 600 }}>{date}, {selectedTimeslot}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Customer</span><span style={{ color: '#0f172a', fontWeight: 600 }}>{formData.name}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Vehicle</span><span style={{ color: '#0f172a', fontWeight: 600 }}>{formData.vehicleModel} · {formData.vehicleNumber}</span></div>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>Total</span><span style={{ color: '#166534', fontWeight: 800, fontSize: '1.1rem' }}>Rs. {stationPrice.toLocaleString()}</span></div>
+                </div>
+              </div>
+              {/* Actions */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                <button type="button" onClick={() => setModalStep('form')} style={{ padding: '12px 24px', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', backgroundColor: 'transparent', color: '#64748b', border: '2px solid #cbd5e1' }}>← Back</button>
+                <button type="button" onClick={handleConfirmBooking} disabled={isSubmitting || !paymentMethod} style={{ padding: '12px 28px', borderRadius: '8px', fontSize: '1rem', fontWeight: '700', cursor: (isSubmitting || !paymentMethod) ? 'not-allowed' : 'pointer', backgroundColor: (!paymentMethod) ? '#93c5fd' : '#2563eb', color: 'white', border: 'none', boxShadow: '0 4px 6px -1px rgba(37,99,235,0.2)', opacity: (!paymentMethod) ? 0.7 : 1 }}>
+                  {isSubmitting ? 'Processing...' : 'Confirm Booking ✓'}
+                </button>
+              </div>
+            </div>
+            )}
           </div>
         </div>
       )}

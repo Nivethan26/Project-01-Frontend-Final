@@ -365,7 +365,9 @@ const UserBookings = () => {
                   </div>
                   <div className="ub-card-right-top">
                     {getStatusBadge(booking.status)}
-                    <span className="ub-amount">Rs. {Number(booking.amount).toFixed(2)}</span>
+                    <span className="ub-amount">
+                      {Number(booking.amount) === 0 ? 'Price on enquiry' : `Rs. ${Number(booking.amount).toFixed(2)}`}
+                    </span>
                   </div>
                 </div>
 

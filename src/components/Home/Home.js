@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import home1 from "../assets/home1.png";
 import home2 from "../assets/home2.png";
 import home3 from "../assets/home3.png";
@@ -13,6 +13,66 @@ import Performance_Optimization from "../assets/Performance_Optimization.jpg";
 import "./Home.css";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleBookNow = async (e) => {
+    e.preventDefault();
+
+    // Check cached role first
+    const cachedRole = sessionStorage.getItem("user-role");
+    if (cachedRole) {
+      const role = cachedRole.toLowerCase();
+      if (role === "user") {
+        navigate("/user");
+      } else if (role === "employee") {
+        navigate("/employee/bookings");
+      } else if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    // Dynamic verification fallback
+    try {
+      const res = await fetch("/Backend/api/check-auth/index.php", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const user = data?.user;
+        if (user && user.role) {
+          const role = user.role.toLowerCase();
+          sessionStorage.setItem("user-id", String(user.id));
+          sessionStorage.setItem("username", String(user.username));
+          sessionStorage.setItem("email", String(user.email));
+          sessionStorage.setItem("user-role", role);
+
+          if (role === "user") {
+            navigate("/user");
+          } else if (role === "employee") {
+            navigate("/employee/bookings");
+          } else if (role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/login");
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Auth check failed:", err);
+    }
+
+    navigate("/login");
+  };
+
   return (
     <main className="modern-home">
       {/* 1. HERO SECTION */}
@@ -26,9 +86,9 @@ const Home = () => {
             Experience excellence with Sri Lanka's largest and most trusted auto service network.
           </p>
           <div className="hero-actions">
-            <Link to="/login" className="cta-button cta-primary">
+            <a href="/login" onClick={handleBookNow} className="cta-button cta-primary">
               Book a Service
-            </Link>
+            </a>
             <Link to="/Services" className="cta-button cta-secondary">
               Learn More
             </Link>

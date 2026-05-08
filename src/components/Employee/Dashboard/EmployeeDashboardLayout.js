@@ -12,16 +12,32 @@ const EmployeeDashboardLayout = () => {
     const hasBootstrapped = useRef(false);
 
     useEffect(() => {
-        if (hasBootstrapped.current) {
-            return;
-        }
-        hasBootstrapped.current = true;
+        const fetchDetails = async (userId, username) => {
+            try {
+                const details = await axios.get(
+                    `http://localhost/Backend/api/getUserDetails.php?id=${encodeURIComponent(String(userId))}`,
+                    { withCredentials: true }
+                );
+
+                if (details?.data?.success) {
+                    setUser(details.data.data);
+                } else {
+                    setUser({ username: username || 'Employee', name: '' });
+                }
+            } catch (_) {
+                setUser({ username: username || 'Employee', name: '' });
+            }
+        };
 
         const bootstrap = async () => {
+            if (hasBootstrapped.current) {
+                return;
+            }
+            hasBootstrapped.current = true;
             setLoading(true);
 
             try {
-                const res = await fetch('/Backend/api/check-auth/index.php', {
+                const res = await fetch('http://localhost/Backend/api/check-auth/index.php', {
                     method: 'GET',
                     credentials: 'include',
                     headers: { Accept: 'application/json' },
@@ -41,20 +57,10 @@ const EmployeeDashboardLayout = () => {
                     return;
                 }
 
-                try {
-                    const details = await axios.get(
-                        `/Backend/api/getUserDetails.php?id=${encodeURIComponent(String(me.id))}`,
-                        { withCredentials: true }
-                    );
+                window.currentEmployeeId = me.id;
+                window.currentEmployeeUsername = me.username;
 
-                    if (details?.data?.success) {
-                        setUser(details.data.data);
-                    } else {
-                        setUser({ username: me?.username || 'Employee', name: '' });
-                    }
-                } catch (_) {
-                    setUser({ username: me?.username || 'Employee', name: '' });
-                }
+                await fetchDetails(me.id, me.username);
             } catch (_) {
                 navigate('/login');
             } finally {
@@ -63,6 +69,17 @@ const EmployeeDashboardLayout = () => {
         };
 
         bootstrap();
+
+        const handlePhotoUpdate = () => {
+            if (window.currentEmployeeId) {
+                fetchDetails(window.currentEmployeeId, window.currentEmployeeUsername);
+            }
+        };
+
+        window.addEventListener('profilePhotoUpdated', handlePhotoUpdate);
+        return () => {
+            window.removeEventListener('profilePhotoUpdated', handlePhotoUpdate);
+        };
     }, [navigate]);
 
     const handleLogout = async () => {
@@ -83,7 +100,7 @@ const EmployeeDashboardLayout = () => {
         }
 
         try {
-            await fetch('/Backend/logout.php', {
+            await fetch('http://localhost/Backend/logout.php', {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -103,39 +120,60 @@ const EmployeeDashboardLayout = () => {
 
     const isActive = (path) => location.pathname === path ? 'active' : '';
 
+    const avatarUrl = user.profile_photo
+        ? `http://localhost/Backend/${user.profile_photo}`
+        : 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+
     return (
         <div className="employee-dashboard-container">
             <nav className="emp-sidebar">
-                <div className="brand" style={{ display: 'flex', alignItems: 'center' }}>
-                    <i className="fa fa-car" style={{ marginRight: '10px', fontSize: '22px', color: '#2563eb' }}></i>
-                    <div>
-                        AutoCare<span style={{ color: '#2563eb' }}>Lanka</span>
+                <div className="emp-sidebar-wrapper">
+                    {/* Brand / Logo */}
+                    <div className="brand">
+                        <h2>AutoCare Lanka</h2>
                     </div>
-                </div>
-                
-                <NavLink to="/employee/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-home"></i> Dashboard
-                </NavLink>
-                <NavLink to="/employee/bookings" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-calendar"></i> Bookings
-                </NavLink>
-                <NavLink to="/employee/jobs" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-wrench"></i> My Jobs
-                </NavLink>
-                <NavLink to="/employee/leave" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-bed"></i> Leave
-                </NavLink>
-                <NavLink to="/employee/messages" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-envelope"></i> Messages
-                </NavLink>
-                <NavLink to="/employee/profile" className={({ isActive }) => isActive ? 'active' : ''}>
-                    <i className="fa fa-user"></i> Profile
-                </NavLink>
 
-                <div style={{ marginTop: 'auto', padding: '0 24px' }}>
-                    <button onClick={handleLogout} style={{ width: '100%', padding: '12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '500' }}>
-                        <i className="fa fa-sign-out"></i> Logout
-                    </button>
+                    {/* Navigation Links */}
+                    <div className="emp-sidebar-menu">
+                        <div className="emp-sidebar-list">
+                            <NavLink to="/employee/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-home"></i> Dashboard
+                            </NavLink>
+                            <NavLink to="/employee/bookings" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-calendar"></i> Bookings
+                            </NavLink>
+                            <NavLink to="/employee/jobs" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-wrench"></i> My Jobs
+                            </NavLink>
+                            <NavLink to="/employee/leave" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-bed"></i> Leave
+                            </NavLink>
+                            <NavLink to="/employee/messages" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-envelope"></i> Messages
+                            </NavLink>
+                            <NavLink to="/employee/profile" className={({ isActive }) => isActive ? 'active' : ''}>
+                                <i className="fa fa-user"></i> Profile
+                            </NavLink>
+                        </div>
+                    </div>
+
+                    {/* Bottom Profile and Logout */}
+                    <div className="emp-sidebar-bottom">
+                        <div className="emp-user-profile">
+                            <img
+                                src={avatarUrl}
+                                alt="Avatar"
+                                className="emp-bottom-avatar"
+                            />
+                            <div className="emp-user-details">
+                                <span className="emp-user-name">{user.username || user.name || "Employee"}</span>
+                            </div>
+                        </div>
+
+                        <button className="emp-logout-btn" onClick={handleLogout}>
+                            <i className="fa fa-sign-out emp-logout-icon"></i> Logout
+                        </button>
+                    </div>
                 </div>
             </nav>
 

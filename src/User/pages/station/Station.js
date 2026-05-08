@@ -18,7 +18,11 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import BuildIcon from '@mui/icons-material/Build';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useUserAuth } from "../../utils/useUserAuth";
+import BookingWizard from "../../../components/BookingWizard/BookingWizard";
 
 /* ─── Static station data (existing, unchanged) ─────────────────────── */
 const stations = [
@@ -57,6 +61,23 @@ function formatDate(dateStr) {
 const Station = () => {
   const navigate = useNavigate();
   const { username } = useUserAuth();
+
+  const handleCategoryClick = (categoryKey) => {
+    const labels = {
+      mechanical: 'Mechanical Repairs',
+      bodywork: 'Body Work & Painting',
+      periodic: 'Periodic Maintenance'
+    };
+    navigate('/book-service', {
+      state: {
+        entryType: 'other',
+        preSelectedCategory: {
+          key: categoryKey,
+          label: labels[categoryKey] || categoryKey
+        }
+      }
+    });
+  };
 
   const [stats, setStats] = useState({
     totalBookings: 0,
@@ -286,8 +307,8 @@ const Station = () => {
               else if (booking.status === 'completed') statusProps = { bg: '#dcfce7', text: '#166534', border: '#86efac', label: '✓ Completed' };
               else if (booking.status === 'rejected') statusProps = { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5', label: '✗ Rejected' };
 
-              const amounts = { 1: 800, 2: 800, 3: 1200, 4: 2000 };
-              const amount = amounts[booking.station_id] || 800;
+              const amounts = { 1: 800, 2: 800, 3: 1500, 4: 3500 };
+              const amount = booking.amount !== undefined ? parseFloat(booking.amount) : (amounts[booking.station_id] || 0);
 
               return (
                 <div key={booking.id} className="recent-booking-card" onClick={() => navigate("/User/bookings")}>
@@ -322,7 +343,9 @@ const Station = () => {
                       )}
                     </div>
                     <div className="rb-action-group">
-                      <div className="rb-amount">Rs. {amount.toFixed(2)}</div>
+                      <div className="rb-amount">
+                        {amount === 0 ? 'Price on enquiry' : `Rs. ${amount.toFixed(2)}`}
+                      </div>
                       <button className="rb-view-btn">View Details →</button>
                     </div>
                   </div>
@@ -468,6 +491,66 @@ const Station = () => {
         </div>
       </div>
 
+      {/* ── Other Services (Added per user request) ─────────────────────── */}
+      <div className="dashboard-section" id="other-services-grid" style={{ marginTop: '24px' }}>
+        <div className="station-booking-container">
+          <h2 className="section-title">Other Services</h2>
+          <p className="section-subtitle">Professional repairs and maintenance for your vehicle</p>
+
+          <div className="stations">
+            {/* Card 1: Mechanical Repairs */}
+            <div className="station-card shadow-hover-box">
+              <h2 className="station-title">
+                <BuildIcon className="icon" fontSize="small" style={{ marginRight: '8px', color: '#2563eb' }} />
+                Mechanical Repairs
+              </h2>
+              <p className="desc">Engine diagnostics, general repairs, and mechanical fixes to keep your vehicle running.</p>
+              <div className="card-bottom" style={{ marginTop: 'auto', paddingTop: '16px' }}>
+                <button
+                  className="book-button premium-btn"
+                  onClick={() => handleCategoryClick('mechanical')}
+                >
+                  Book Now <ArrowForwardIcon style={{ marginLeft: '8px', fontSize: '18px' }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Card 2: Body Work & Painting */}
+            <div className="station-card shadow-hover-box">
+              <h2 className="station-title">
+                <ColorLensIcon className="icon" fontSize="small" style={{ marginRight: '8px', color: '#2563eb' }} />
+                Body Work & Painting
+              </h2>
+              <p className="desc">Accident repairs, dent removal, and professional repainting for a flawless finish.</p>
+              <div className="card-bottom" style={{ marginTop: 'auto', paddingTop: '16px' }}>
+                <button
+                  className="book-button premium-btn"
+                  onClick={() => handleCategoryClick('bodywork')}
+                >
+                  Book Now <ArrowForwardIcon style={{ marginLeft: '8px', fontSize: '18px' }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Card 3: Periodic Maintenance */}
+            <div className="station-card shadow-hover-box">
+              <h2 className="station-title">
+                <AutorenewIcon className="icon" fontSize="small" style={{ marginRight: '8px', color: '#2563eb' }} />
+                Periodic Maintenance
+              </h2>
+              <p className="desc">Scheduled servicing, oil changes, and routine checks to extend your vehicle's life.</p>
+              <div className="card-bottom" style={{ marginTop: 'auto', paddingTop: '16px' }}>
+                <button
+                  className="book-button premium-btn"
+                  onClick={() => handleCategoryClick('periodic')}
+                >
+                  Book Now <ArrowForwardIcon style={{ marginLeft: '8px', fontSize: '18px' }} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

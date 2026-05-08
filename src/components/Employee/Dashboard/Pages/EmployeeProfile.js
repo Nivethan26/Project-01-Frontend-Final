@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useOutletContext } from 'react-router-dom';
@@ -61,11 +61,14 @@ const validatePasswords = (value) => {
 
 const EmployeeProfile = () => {
     const { user } = useOutletContext();
+    const fileInputRef = useRef(null);
+
     const [profile, setProfile] = useState({
         fullName: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        profile_photo: ''
     });
     const [passwords, setPasswords] = useState({
         newPassword: '',
@@ -75,13 +78,19 @@ const EmployeeProfile = () => {
         fullName: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        profile_photo: ''
     });
     const [profileErrors, setProfileErrors] = useState({});
     const [passwordErrors, setPasswordErrors] = useState({});
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [savingProfile, setSavingProfile] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
+
+    // Profile photo upload states
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
     const isProfileModified = useMemo(() => {
         const current = normalizeProfile(profile);
@@ -107,6 +116,55 @@ const EmployeeProfile = () => {
         return isPasswordModified && Object.keys(passwordErrors).length === 0;
     }, [isPasswordModified, passwordErrors]);
 
+    const handlePhotoClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setPhotoFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const uploadPhoto = async () => {
+        if (!photoFile) return;
+        setUploadingPhoto(true);
+
+        const formData = new FormData();
+        formData.append('email', profile.email || user?.email);
+        formData.append('photo', photoFile);
+
+        try {
+            const response = await fetch('http://localhost/Backend/uploadProfilePhoto.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('Photo uploaded successfully!');
+                setPhotoFile(null);
+                setPhotoPreview(null);
+                fetchProfile();
+                window.dispatchEvent(new Event('profilePhotoUpdated'));
+            } else {
+                toast.error(result.message || 'Upload failed');
+            }
+        } catch (err) {
+            toast.error('Error uploading photo');
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
+
     const fetchProfile = useCallback(async () => {
         setLoadingProfile(true);
         const employeeId = user?.id || user?.employeeId;
@@ -125,7 +183,8 @@ const EmployeeProfile = () => {
                     fullName: res.data.data.full_name || '',
                     email: res.data.data.email || '',
                     phone: res.data.data.phone || '',
-                    address: res.data.data.address || ''
+                    address: res.data.data.address || '',
+                    profile_photo: res.data.data.profile_photo || ''
                 };
                 setProfile(fetchedProfile);
                 setInitialProfile(fetchedProfile);
@@ -354,28 +413,105 @@ const EmployeeProfile = () => {
                             grid-template-columns: 1fr;
                         }
                     }
+                    .profile-photo-wrapper {
+                        position: relative;
+                        width: 80px;
+                        height: 80px;
+                        cursor: pointer;
+                        display: inline-block;
+                        flex-shrink: 0;
+                    }
+                    .profile-photo-image {
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        border: 3px solid #2563EB;
+                        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+                    }
+                    .profile-photo-initials {
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(135deg, #2563EB, #1D4ED8);
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justifyContent: center;
+                        font-size: 32px;
+                        font-weight: bold;
+                        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+                        border: 3px solid #2563EB;
+                    }
+                    .profile-photo-overlay {
+                        position: absolute;
+                        inset: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justifyContent: center;
+                        opacity: 0;
+                        transition: opacity 200ms ease;
+                        color: white;
+                        font-size: 20px;
+                    }
+                    .profile-photo-wrapper:hover .profile-photo-overlay {
+                        opacity: 1;
+                    }
                 `}
             </style>
 
             <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                 
                 {/* Header Section */}
-                <div className="card-container" style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '30px' }}>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
-                        color: 'white',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '32px',
-                        fontWeight: 'bold',
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-                    }}>
-                        {getInitials(profile.fullName || user?.name)}
+                <div className="card-container" style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '30px', flexWrap: 'wrap' }}>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        accept="image/jpeg, image/png, image/jpg, image/webp"
+                        style={{ display: 'none' }} 
+                    />
+
+                    <div className="profile-photo-wrapper" onClick={handlePhotoClick}>
+                        {photoPreview || profile.profile_photo ? (
+                            <img 
+                                src={photoPreview || `/Backend/${profile.profile_photo}`} 
+                                alt="Profile" 
+                                className="profile-photo-image" 
+                            />
+                        ) : (
+                            <div className="profile-photo-initials">
+                                {getInitials(profile.fullName || user?.name)}
+                            </div>
+                        )}
+                        <div className="profile-photo-overlay">
+                            <i className="fa fa-camera"></i>
+                        </div>
                     </div>
+
+                    {photoFile && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <button 
+                                className="btn-save-profile" 
+                                style={{ padding: '8px 16px', fontSize: '13px' }}
+                                onClick={uploadPhoto}
+                                disabled={uploadingPhoto}
+                            >
+                                {uploadingPhoto ? 'Uploading...' : 'Save Photo'}
+                            </button>
+                            <button 
+                                className="btn-save-password" 
+                                style={{ padding: '8px 16px', fontSize: '13px', background: '#94a3b8', boxShadow: 'none' }}
+                                onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                                disabled={uploadingPhoto}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+
                     <div>
                         <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', color: '#111827', fontWeight: 'bold' }}>
                             {profile.fullName || user?.name || 'Employee Name'}

@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
-import EmployeeStationList from './BookingFlow/EmployeeStationList';
-import EmployeeBookingCalendar from './BookingFlow/EmployeeBookingCalendar';
-import EmployeeBookingTimeslot from './BookingFlow/EmployeeBookingTimeslot';
 
-/* ── Booking History Tab ── */
-const BookingHistoryTab = () => {
+const EmployeeMyJobs = () => {
     const { user } = useOutletContext();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,8 +10,8 @@ const BookingHistoryTab = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [summary, setSummary] = useState({ total: 0, completed: 0, pending: 0, cancelled: 0 });
-    const [viewModal, setViewModal] = useState({ isOpen: false, booking: null });
+    const [summary, setSummary] = useState({ total: 0, completed: 0, pending: 0, in_progress: 0, approved: 0 });
+    const [statusModal, setStatusModal] = useState({ isOpen: false, booking: null, newStatus: '' });
     const [toastMsg, setToastMsg] = useState(null);
 
     const fetchBookings = () => {
@@ -28,12 +23,12 @@ const BookingHistoryTab = () => {
             status: statusFilter,
             search: search,
         });
-        axios.get(`http://localhost/Backend/api/getEmployeeMyBookings.php?${params}`, { withCredentials: true })
+        axios.get(`http://localhost/Backend/api/getEmployeeMyJobs.php?${params}`, { withCredentials: true })
             .then(res => {
                 if (res.data.success) {
                     setBookings(res.data.data.bookings || []);
                     setTotalPages(res.data.data.totalPages || 1);
-                    setSummary(res.data.data.summary || { total: 0, completed: 0, pending: 0 });
+                    setSummary(res.data.data.summary || { total: 0, completed: 0, pending: 0, in_progress: 0, approved: 0 });
                 }
             })
             .catch(() => {})
@@ -48,11 +43,47 @@ const BookingHistoryTab = () => {
         fetchBookings();
     };
 
-    const openViewModal = (booking) => {
-        setViewModal({ isOpen: true, booking });
+    const confirmStatusUpdate = async () => {
+        const { booking, newStatus } = statusModal;
+        if (!booking) return;
+
+        // DB status string to send
+        const statusToSend = newStatus === 'in_progress' ? 'in_progress' : 'completed';
+
+        try {
+            const res = await axios.post('http://localhost/Backend/api/updateBookingStatus.php', {
+                id: booking.id,
+                status: statusToSend,
+                role: user?.role || 'employee'
+            }, { withCredentials: true });
+
+            if (!res.data.success) {
+                setToastMsg(`❌ Failed to update. Please try again.`);
+                setTimeout(() => setToastMsg(null), 3000);
+                return;
+            }
+
+            const updatedBookings = bookings.map(b => 
+                b.id === booking.id ? { ...b, status: statusToSend } : b
+            );
+            setBookings(updatedBookings);
+            updateSummary(updatedBookings);
+
+            const fallbackRef = `#BK${(booking.date || '0000-00-00').split('-').reverse().join('')}${booking.id}`;
+            const ref = booking.booking_reference || fallbackRef;
+            if (statusToSend === 'in_progress') {
+                setToastMsg(`✅ Job started — ${ref} is now In Progress`);
+            } else {
+                setToastMsg(`✅ ${ref} marked as Completed`);
+            }
+            setTimeout(() => setToastMsg(null), 3000);
+        } catch (err) {
+            setToastMsg('❌ Failed to update. Please try again.');
+            setTimeout(() => setToastMsg(null), 3000);
+        } finally {
+            setStatusModal({ isOpen: false, booking: null, newStatus: '' });
+        }
     };
-
-
 
     const updateSummary = (bks) => {
         const newSummary = bks.reduce((acc, curr) => {
@@ -61,9 +92,9 @@ const BookingHistoryTab = () => {
             if (s === 'completed') acc.completed++;
             if (s === 'in_progress') acc.in_progress++;
             if (s === 'pending') acc.pending++;
-            if (s === 'cancelled') acc.cancelled++;
+            if (s === 'approved') acc.approved++;
             return acc;
-        }, { total: 0, completed: 0, pending: 0, cancelled: 0 });
+        }, { total: 0, completed: 0, in_progress: 0, pending: 0, approved: 0 });
         setSummary(newSummary);
     };
 
@@ -91,17 +122,47 @@ const BookingHistoryTab = () => {
         );
     };
 
-    const getBookingDisplayAction = (booking) => {
-        return (
-            <button
-                onClick={() => openViewModal(booking)}
-                style={styles.viewBtn}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(37,99,235,0.05)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-                View Details
-            </button>
-        );
+    const renderActionButtons = (booking) => {
+        const status = (booking.status || '').toLowerCase();
+        
+        switch(status) {
+            case "pending":
+                return (
+                    <span style={{ fontSize: '12px', color: '#9ca3af', fontStyle: 'italic', padding: '6px 14px' }}>Awaiting admin approval</span>
+                );
+
+            case "approved":
+                return (
+                    <button onClick={() => setStatusModal({ isOpen: true, booking, newStatus: 'in_progress' })}
+                            style={{ padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 0.2s', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#1d4ed8'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#2563eb'}
+                    >
+                        Start Job →
+                    </button>
+                );
+
+            case "in_progress":
+                return (
+                    <button onClick={() => setStatusModal({ isOpen: true, booking, newStatus: 'completed' })}
+                            style={{ padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: '#059669', color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 0.2s', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#047857'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#059669'}
+                    >
+                        Mark Complete ✓
+                    </button>
+                );
+
+            case "completed":
+            case "rejected":
+            case "cancelled":
+                return (
+                    <span style={{ fontSize: '12px', color: '#9ca3af', fontStyle: 'italic', padding: '6px 14px' }}>—</span>
+                );
+                
+            default:
+                return null;
+        }
     };
 
     const formatDate = (dateStr, timeslot) => {
@@ -188,6 +249,15 @@ const BookingHistoryTab = () => {
                 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             `}</style>
 
+            <div style={{ marginBottom: '24px' }}>
+                <h2 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 800, color: '#111827', letterSpacing: '-0.5px' }}>
+                    My Jobs
+                </h2>
+                <p style={{ margin: 0, fontSize: '15px', color: '#6b7280' }}>
+                    Manage your assigned service jobs
+                </p>
+            </div>
+
             {/* Summary Cards */}
             <div style={styles.summaryGrid}>
                 <div style={styles.summaryCard}>
@@ -195,26 +265,26 @@ const BookingHistoryTab = () => {
                         <i className="fa fa-list-alt" />
                     </div>
                     <div>
-                        <div style={styles.summaryLabel}>Total Bookings</div>
+                        <div style={styles.summaryLabel}>Total Jobs</div>
                         <div style={styles.summaryValue}>{summary.total}</div>
                     </div>
                 </div>
                 <div style={styles.summaryCard}>
                     <div style={styles.summaryIcon('#d97706', 'rgba(245,158,11,0.08)')}>
-                        <i className="fa fa-clock-o" />
+                        <i className="fa fa-check-square-o" />
                     </div>
                     <div>
-                        <div style={styles.summaryLabel}>Pending Approval</div>
-                        <div style={styles.summaryValue}>{summary.pending}</div>
+                        <div style={styles.summaryLabel}>Approved (Ready)</div>
+                        <div style={styles.summaryValue}>{summary.approved}</div>
                     </div>
                 </div>
                 <div style={styles.summaryCard}>
-                    <div style={styles.summaryIcon('#dc2626', 'rgba(220,38,38,0.08)')}>
-                        <i className="fa fa-times-circle" />
+                    <div style={styles.summaryIcon('#2563eb', 'rgba(37,99,235,0.08)')}>
+                        <i className="fa fa-cogs" />
                     </div>
                     <div>
-                        <div style={styles.summaryLabel}>Cancelled</div>
-                        <div style={styles.summaryValue}>{summary.cancelled}</div>
+                        <div style={styles.summaryLabel}>In Progress</div>
+                        <div style={styles.summaryValue}>{summary.in_progress}</div>
                     </div>
                 </div>
                 <div style={styles.summaryCard}>
@@ -232,7 +302,7 @@ const BookingHistoryTab = () => {
             <form onSubmit={handleSearch} style={styles.filterBar}>
                 <input
                     type="text"
-                    placeholder="Search by Booking ID or Station..."
+                    placeholder="Search by Booking ID or Customer..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     style={styles.input}
@@ -242,7 +312,8 @@ const BookingHistoryTab = () => {
                 <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} style={styles.select}>
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
+                    <option value="approved">Approved</option>
+                    <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
@@ -257,7 +328,7 @@ const BookingHistoryTab = () => {
                     <div style={{ padding: '20px' }}>
                         {[...Array(5)].map((_, i) => (
                             <div key={i} style={{ display: 'flex', gap: '16px', padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
-                                {[...Array(7)].map((_, j) => (
+                                {[...Array(8)].map((_, j) => (
                                     <div key={j} style={{ ...styles.skeleton, width: j === 0 ? '80px' : '120px' }} />
                                 ))}
                             </div>
@@ -268,9 +339,10 @@ const BookingHistoryTab = () => {
                         <thead>
                             <tr>
                                 <th style={styles.th}>Booking ID</th>
+                                <th style={styles.th}>Customer</th>
                                 <th style={styles.th}>Station</th>
                                 <th style={styles.th}>Service</th>
-                                <th style={styles.th}>Date</th>
+                                <th style={styles.th}>Date & Time</th>
                                 <th style={styles.th}>Duration</th>
                                 <th style={styles.th}>Price</th>
                                 <th style={styles.th}>Status</th>
@@ -292,6 +364,9 @@ const BookingHistoryTab = () => {
                                         </span>
                                     </td>
                                     <td style={styles.td}>
+                                        <span style={{ fontWeight: 600, color: '#334155' }}>{b.customer_name || 'Customer'}</span>
+                                    </td>
+                                    <td style={styles.td}>
                                         <span style={{ fontWeight: 600, color: '#334155' }}>{b.station_name || `Station ${b.station_id || '-'}`}</span>
                                     </td>
                                     <td style={styles.td}>{b.service_name || 'Wash Service'}</td>
@@ -305,7 +380,7 @@ const BookingHistoryTab = () => {
                                     <td style={styles.td}>{getStatusBadge(b.status)}</td>
                                     <td style={styles.td}>
                                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            {getBookingDisplayAction(b)}
+                                            {renderActionButtons(b)}
                                         </div>
                                     </td>
                                 </tr>
@@ -319,11 +394,11 @@ const BookingHistoryTab = () => {
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             margin: '0 auto 16px', fontSize: '24px', color: '#94a3b8'
                         }}>
-                            <i className="fa fa-calendar-o" />
+                            <i className="fa fa-wrench" />
                         </div>
-                        <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 600, color: '#334155' }}>No bookings found</h3>
+                        <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 600, color: '#334155' }}>No jobs assigned</h3>
                         <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>
-                            {search || statusFilter !== 'all' ? 'Try adjusting your filters.' : 'Your booking history will appear here.'}
+                            {search || statusFilter !== 'all' ? 'Try adjusting your filters.' : 'Assigned service jobs will appear here.'}
                         </p>
                     </div>
                 )}
@@ -361,8 +436,9 @@ const BookingHistoryTab = () => {
                     </div>
                 </div>
             )}
-            {/* View Details Modal */}
-            {viewModal.isOpen && viewModal.booking && (
+
+            {/* Confirmation Modal */}
+            {statusModal.isOpen && statusModal.booking && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
                     backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
@@ -374,56 +450,37 @@ const BookingHistoryTab = () => {
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', width: '90%', maxWidth: '440px',
                         animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}>
-                        <h2 style={{ margin: '0 0 24px', fontSize: '1.4rem', color: '#1e293b', fontWeight: '700' }}>Booking Details</h2>
-                        <div style={{ margin: '0 0 32px', color: '#475569', fontSize: '0.95rem', lineHeight: 1.8 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Booking ID:</span>
-                                <strong>{viewModal.booking.booking_reference || `#BK${(viewModal.booking.date || '0000-00-00').split('-').reverse().join('')}${viewModal.booking.id}`}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Service:</span>
-                                <strong>{viewModal.booking.service_name || 'Service'}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Station:</span>
-                                <strong>{viewModal.booking.station_name || `Station ${viewModal.booking.station_id || '-'}`}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Date & Time:</span>
-                                <strong>{formatDate(viewModal.booking.date, viewModal.booking.timeslot)}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Duration:</span>
-                                <strong>{viewModal.booking.duration || '30 mins'}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Price:</span>
-                                <strong>Rs. {parseInt(viewModal.booking.price || 800).toLocaleString()}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '8px' }}>
-                                <span>Payment:</span>
-                                <strong>{viewModal.booking.payment_method === 'card' ? 'Card' : 'Cash on Arrival'}</strong>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px' }}>
-                                <span>Status:</span>
-                                <div>{getStatusBadge(viewModal.booking.status)}</div>
-                            </div>
+                        <h2 style={{ margin: '0 0 16px', fontSize: '1.4rem', color: '#1e293b', fontWeight: '700' }}>Confirm Status Update</h2>
+                        <div style={{ margin: '0 0 24px', color: '#475569', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                            <p style={{ margin: '0 0 4px' }}>Booking: <strong>{statusModal.booking.booking_reference || `#BK${(statusModal.booking.date || '0000-00-00').split('-').reverse().join('')}${statusModal.booking.id}`}</strong></p>
+                            <p style={{ margin: 0 }}>Service: <strong>{statusModal.booking.service_name || 'Service'}</strong></p>
                         </div>
                         
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <button onClick={() => setViewModal({ isOpen: false, booking: null })}
-                                    style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 600, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', cursor: 'pointer', transition: 'all 0.2s' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
-                                    onMouseLeave={e => e.currentTarget.style.background = '#f1f5f9'}
+                        <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '32px', border: '1px solid #e2e8f0' }}>
+                            <div>{getStatusBadge(statusModal.booking.status)}</div>
+                            <i className="fa fa-arrow-right" style={{ color: '#94a3b8' }} />
+                            <div>{getStatusBadge(statusModal.newStatus)}</div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                            <button onClick={() => setStatusModal({ isOpen: false, booking: null, newStatus: '' })}
+                                    style={{ padding: '10px 20px', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 600, background: 'transparent', color: '#64748b', border: '2px solid #cbd5e1', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => e.currentTarget.style.borderColor = '#94a3b8'}
+                                    onMouseLeave={e => e.currentTarget.style.borderColor = '#cbd5e1'}
                             >
-                                Close
+                                Cancel
+                            </button>
+                            <button onClick={confirmStatusUpdate}
+                                    style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 600, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(37,99,235,0.2)' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#1d4ed8'}
+                                    onMouseLeave={e => e.currentTarget.style.background = '#2563eb'}
+                            >
+                                Confirm Update
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-
-
 
             {/* Toast Notification */}
             {toastMsg && (
@@ -443,80 +500,4 @@ const BookingHistoryTab = () => {
     );
 };
 
-/* ── Tab styles ── */
-const tabStyles = {
-    container: { display: 'flex', gap: '12px', marginBottom: '28px' },
-    tab: (active) => ({
-        padding: '11px 24px',
-        fontSize: '14px',
-        fontWeight: 600,
-        color: active ? '#ffffff' : '#374151',
-        background: active ? '#2563eb' : '#ffffff',
-        border: active ? '1.5px solid #2563eb' : '1.5px solid #d1d5db',
-        borderRadius: '10px',
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-        transition: 'all 0.25s ease',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: active ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none'
-    })
-};
-
-/* ── Main Component ── */
-const EmployeeBookings = () => {
-    const location = useLocation();
-    const isSubRoute = location.pathname.includes('/station/');
-
-    // If navigating into a station sub-route (calendar/timeslot), render those directly
-    if (isSubRoute) {
-        return (
-            <div style={{ height: '100%' }}>
-                <Routes>
-                    <Route path="/station/:stationId" element={<EmployeeBookingCalendar />} />
-                    <Route path="/station/:stationId/timeslot/:date" element={<EmployeeBookingTimeslot />} />
-                </Routes>
-            </div>
-        );
-    }
-
-    return <BookingsTabLayout />;
-};
-
-const BookingsTabLayout = () => {
-    const [activeTab, setActiveTab] = useState('history');
-
-    return (
-        <div>
-            {/* Page Header */}
-            <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 800, color: '#111827', letterSpacing: '-0.5px' }}>
-                    My Bookings
-                </h2>
-                <p style={{ margin: 0, fontSize: '15px', color: '#6b7280' }}>
-                    Track all your service bookings and schedule new ones.
-                </p>
-            </div>
-
-            {/* Tabs */}
-            <div style={tabStyles.container}>
-                <button style={tabStyles.tab(activeTab === 'history')} onClick={() => setActiveTab('history')}>
-                    <i className="fa fa-history" /> Booking History
-                </button>
-                <button style={tabStyles.tab(activeTab === 'book')} onClick={() => setActiveTab('book')}>
-                    <i className="fa fa-plus-circle" /> Book a Service
-                </button>
-            </div>
-
-            {/* Tab Content */}
-            {activeTab === 'history' ? (
-                <BookingHistoryTab />
-            ) : (
-                <EmployeeStationList />
-            )}
-        </div>
-    );
-};
-
-export default EmployeeBookings;
+export default EmployeeMyJobs;

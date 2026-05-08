@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Services from "./components/Services";
@@ -26,6 +26,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import EmployeeDashboardLayout from "./components/Employee/Dashboard/EmployeeDashboardLayout";
 import EmployeeHome from "./components/Employee/Dashboard/Pages/EmployeeHome";
 import EmployeeBookings from "./components/Employee/Dashboard/Pages/EmployeeBookings";
+import EmployeeMyJobs from "./components/Employee/Dashboard/Pages/EmployeeMyJobs";
 import EmployeeJobs from "./components/Employee/Dashboard/Pages/EmployeeJobs";
 import EmployeeLeave from "./components/Employee/Dashboard/Pages/EmployeeLeave";
 import EmployeeMessages from "./components/Employee/Dashboard/Pages/EmployeeMessages";
@@ -42,6 +43,19 @@ import BookingStation from "./components/BookingStation";
 import PaymentForm from "./booking/components/PaymentForm/PaymentForm";
 import AppAlertsProvider from "./components/ui/AppAlertsProvider";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import BookingWizard from "./components/BookingWizard/BookingWizard";
+import BookingPage from "./components/BookingPage/BookingPage";
+
+// ScrollToTop component to reset window scroll on navigation
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const EmployeeDashboardRedirect = () => {
   return (
@@ -56,6 +70,7 @@ const App = () => {
     <div>
     <AppAlertsProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
@@ -193,7 +208,7 @@ const App = () => {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<EmployeeHome />} />
           <Route path="bookings/*" element={<EmployeeBookings />} />
-          <Route path="jobs" element={<EmployeeJobs />} />
+          <Route path="jobs" element={<EmployeeMyJobs />} />
           <Route path="leave" element={<EmployeeLeave />} />
           <Route path="messages" element={<EmployeeMessages />} />
           <Route path="profile" element={<EmployeeProfile />} />
@@ -243,8 +258,10 @@ const App = () => {
 
         <Route path="/courses/:id" element={<CourseDetails />} /> {/* View course details by ID */}
         <Route path="/courses" element={<Courses />} /> {/* List specific course */}
-        <Route path="/services/:id" element={<ServiceDetail />} /> {/* View course details by ID */}
-        <Route path="/jobs" element={<Jobs />} /> {/* Route for Courses */}
+        <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/booking" element={<Layout3><BookingPage /></Layout3>} />
+        <Route path="/book-service" element={<Layout3><BookingWizard /></Layout3>} />
+        <Route path="/jobs" element={<Jobs />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
 
         {/* Redirect old employee routes to the new dashboard */}

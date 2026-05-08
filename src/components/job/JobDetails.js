@@ -28,7 +28,6 @@ export default function JobDetails() {
     email: '',
     cv: null,
   });
-  const [formMessage, setFormMessage] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingApplication, setCheckingApplication] = useState(false);
@@ -133,7 +132,6 @@ export default function JobDetails() {
 
   const handleApply = async (e) => {
     e.preventDefault();
-    setFormMessage('');
 
     if (!validateForm()) {
       return;
@@ -180,7 +178,6 @@ export default function JobDetails() {
     setAlreadyApplied(false);
     setCheckingApplication(false);
     setFormErrors({});
-    setFormMessage('');
   };
 
   if (loading) return <p>Loading job details...</p>;

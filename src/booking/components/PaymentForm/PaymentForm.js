@@ -54,7 +54,7 @@ const isValidLuhn = (value) => {
 const PaymentForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { bookingData, stationId } = location.state || {};
+  const { bookingData, stationId, price } = location.state || {};
 
   const [paymentMethod, setPaymentMethod] = useState("card"); // "card" | "cash"
   const [username, setUsername] = useState(bookingData?.name || "");
@@ -80,8 +80,11 @@ const PaymentForm = () => {
     return <Navigate to="/" replace />;
   }
 
-  const stationInfo = STATION_PRICES[stationId] || { label: "General Service", price: 500 };
-  const subtotal = stationInfo.price;
+  const stationInfo = STATION_PRICES[stationId] || { 
+    label: bookingData?.serviceName || "General Service", 
+    price: price !== undefined ? parseFloat(price) : 500 
+  };
+  const subtotal = price !== undefined ? parseFloat(price) : stationInfo.price;
   const tax = 0;
   const total = subtotal + tax;
 
@@ -261,7 +264,16 @@ const PaymentForm = () => {
 
     setIsProcessing(true);
 
-    const fullBookingData = {
+    const isWizard = !!bookingData.category;
+    const url = isWizard 
+      ? '/Backend/api/booking-wizard/create-booking.php'
+      : `/Backend/api.php?action=add_booking&station_id=${stationId}`;
+
+    const body = isWizard ? {
+      ...bookingData,
+      payment_method: paymentMethod === 'card' ? 'card' : 'cash',
+      payment_status: paymentMethod === 'card' ? 'paid' : 'pending_payment'
+    } : {
       ...bookingData,
       station_id: stationId,
       paymentMethod: paymentMethod === 'card' ? 'card' : 'cash',
@@ -269,17 +281,14 @@ const PaymentForm = () => {
     };
 
     try {
-      const response = await fetch(
-        `/Backend/api.php?action=add_booking&station_id=${stationId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(fullBookingData),
-        }
-      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
       const data = await response.json();
 
-      if (response.ok && data.status === "success") {
+      if (response.ok && (data.status === "success" || data.success)) {
         setConfirmedBookingId(data.bookingId || "BKG-CONFIRMED");
         setIsProcessing(false);
         setIsSuccess(true);
@@ -409,11 +418,11 @@ const PaymentForm = () => {
                 <h4>Vehicle Info</h4>
                 <div className="modern-row">
                   <span className="modern-label">Model</span>
-                  <span className="modern-value">{bookingData.vehicleModel || "N/A"}</span>
+                  <span className="modern-value">{bookingData.vehicle_model || bookingData.vehicleModel || "N/A"}</span>
                 </div>
                 <div className="modern-row">
                   <span className="modern-label">Number</span>
-                  <span className="modern-value">{bookingData.vehicleNumber}</span>
+                  <span className="modern-value">{bookingData.vehicle_number || bookingData.vehicleNumber || "N/A"}</span>
                 </div>
               </div>
 
@@ -421,7 +430,7 @@ const PaymentForm = () => {
                 <h4>Booking Info</h4>
                 <div className="modern-row">
                   <span className="modern-label">Service</span>
-                  <span className="modern-value">{STATION_NAMES[stationId]}</span>
+                  <span className="modern-value">{STATION_NAMES[stationId] || stationInfo.label || "AutoCare Service"}</span>
                 </div>
                 <div className="modern-row">
                   <span className="modern-label">Date</span>
@@ -429,7 +438,7 @@ const PaymentForm = () => {
                 </div>
                 <div className="modern-row">
                   <span className="modern-label">Time</span>
-                  <span className="modern-value">{bookingData.timeslot}</span>
+                  <span className="modern-value">{bookingData.timeslot || "N/A"}</span>
                 </div>
               </div>
 
@@ -670,7 +679,7 @@ const PaymentForm = () => {
               <ul className="summary-list">
                 <li>
                   <LocationOnIcon className="s-icon" />
-                  <span className="s-label">{STATION_NAMES[stationId]}</span>
+                  <span className="s-label">{STATION_NAMES[stationId] || "AutoCare Lanka Center"}</span>
                 </li>
                 <li>
                   <BuildIcon className="s-icon" />
@@ -680,13 +689,17 @@ const PaymentForm = () => {
                   <CalendarMonthIcon className="s-icon" />
                   <span className="s-label">{formatDate(bookingData.date)}</span>
                 </li>
-                <li>
-                  <AccessTimeIcon className="s-icon" />
-                  <span className="s-label">{bookingData.timeslot}</span>
-                </li>
+                {bookingData.timeslot && (
+                  <li>
+                    <AccessTimeIcon className="s-icon" />
+                    <span className="s-label">{bookingData.timeslot}</span>
+                  </li>
+                )}
                 <li>
                   <DirectionsCarIcon className="s-icon" />
-                  <span className="s-label">{bookingData.vehicleNumber}</span>
+                  <span className="s-label">
+                    {bookingData.vehicle_model || bookingData.vehicleModel || "Vehicle"} · {bookingData.vehicle_number || bookingData.vehicleNumber}
+                  </span>
                 </li>
                 <li>
                   <PersonIcon className="s-icon" />
